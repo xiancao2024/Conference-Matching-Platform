@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blockie AI Conference Matching</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="top-accent"></div>
+    <main class="app-shell">
+      <section class="card chat-card">
+        <header class="chat-header">
+          <p class="eyebrow">Blockie AI</p>
+          <h1>Ask anything</h1>
+          <p class="intro-text">
+            Search your imported event attendance data in a simple way. Ask about sessions,
+            attendees, or themes and Blockie AI will return the most relevant matches.
+          </p>
+        </header>
+
+        <div class="suggestion-row" id="suggestionRow">
+          <button class="suggestion-chip" type="button" data-query="Show AI-related sessions from this dataset.">
+            AI sessions
+          </button>
+          <button class="suggestion-chip" type="button" data-query="Find attendees connected to climate events.">
+            Climate attendees
+          </button>
+          <button class="suggestion-chip" type="button" data-query="Recommend sessions for networking and community.">
+            Networking
+          </button>
+        </div>
+
+        <div class="results-header">
+          <p class="results-kicker">Ranked Output</p>
+          <h2>Top conference matches</h2>
+        </div>
+
+        <section class="conversation" id="conversation">
+          <article class="message assistant">
+            <div class="avatar">AI</div>
+            <div class="bubble">
+              <p class="message-title">Blockie AI</p>
+              <p id="welcomeText">
+                Hi, I can search imported attendees and event sessions. Try asking for sessions,
+                people connected to a topic, or recommendations based on a theme.
+              </p>
+            </div>
+          </article>
+        </section>
+
+        <form id="chatForm" class="composer">
+          <textarea
+            id="questionInput"
+            rows="2"
+            placeholder="Ask Blockie AI a question about your imported attendance data..."
+          ></textarea>
+          <button class="send-button" type="submit">Ask</button>
+        </form>
+      </section>
+
+      <aside class="sidebar">
+        <section class="card info-card">
+          <p class="card-label">How To Use It</p>
+          <h2>Current capabilities</h2>
+          <ul class="info-list">
+            <li>Ask for sessions related to a topic or theme.</li>
+            <li>Ask who is connected to a specific event.</li>
+            <li>Ask for community or networking recommendations.</li>
+            <li>Get ranked matches with short explanations.</li>
+          </ul>
+        </section>
+
+        <section class="card info-card info-card-soft">
+          <p class="card-label">Live Dataset</p>
+          <h2 id="conferenceName">Loading...</h2>
+          <p class="dataset-text" id="datasetText">
+            Loading imported attendance data.
+          </p>
+          <div class="dataset-stats">
+            <div class="dataset-stat">
+              <span>Events</span>
+              <strong id="eventCount">0</strong>
+            </div>
+            <div class="dataset-stat">
+              <span>Attendees</span>
+              <strong id="attendeeCount">0</strong>
+            </div>
+            <div class="dataset-stat">
+              <span>Rows</span>
+              <strong id="rowCount">0</strong>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
