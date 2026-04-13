@@ -1,0 +1,196 @@
+{
+  "conference": {
+    "id": "kaggle-event-attendance",
+    "name": "Kaggle Event Attendance Dataset",
+    "location": "Imported from event attendance records",
+    "date": "",
+    "theme": "Conference matching over imported attendance rows",
+    "description": "Normalized from the Kaggle Event Attendance Dataset. Attendee roles and richer matchmaking fields are heuristically derived from event attendance records.",
+    "tracks": [
+      "healthcare",
+      "artificial intelligence",
+      "climate",
+      "fundraising"
+    ],
+    "source_type": "kaggle-normalized",
+    "source_dataset": "cankatsrc/event-attendance-dataset",
+    "source_label": "manual-small-2",
+    "event_count": 2,
+    "attendee_count": 3,
+    "raw_row_count": 3
+  },
+  "entities": [
+    {
+      "id": "attendee-ava-northstar-ai",
+      "entity_type": "attendee",
+      "name": "Ava Stone",
+      "role": "participant",
+      "title": "Conference Attendee",
+      "organization": "Northstar",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Find relevant people at the event",
+        "Join useful event conversations"
+      ],
+      "asks": [
+        "Relevant introductions",
+        "Networking opportunities"
+      ],
+      "offers": [
+        "Peer conversation",
+        "Shared event context"
+      ],
+      "tags": [
+        "Health AI Meetup"
+      ],
+      "bio": "Ava Stone from Northstar is attending Health AI Meetup.",
+      "contact_email": "ava@northstar.ai",
+      "contact_phone": "555-1111",
+      "source_events": [
+        "Health AI Meetup"
+      ]
+    },
+    {
+      "id": "attendee-maya-lumengrid-com",
+      "entity_type": "attendee",
+      "name": "Maya Chen",
+      "role": "participant",
+      "title": "Conference Attendee",
+      "organization": "Lumengrid",
+      "sectors": [
+        "climate",
+        "fundraising"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Find relevant people at the event",
+        "Join useful event conversations"
+      ],
+      "asks": [
+        "Relevant introductions",
+        "Networking opportunities"
+      ],
+      "offers": [
+        "Peer conversation",
+        "Shared event context"
+      ],
+      "tags": [
+        "Climate Investor Breakfast"
+      ],
+      "bio": "Maya Chen from Lumengrid is attending Climate Investor Breakfast.",
+      "contact_email": "maya@lumengrid.com",
+      "contact_phone": "555-2222",
+      "source_events": [
+        "Climate Investor Breakfast"
+      ]
+    },
+    {
+      "id": "attendee-nadia-gridworks-com",
+      "entity_type": "attendee",
+      "name": "Nadia Torres",
+      "role": "participant",
+      "title": "Conference Attendee",
+      "organization": "Gridworks",
+      "sectors": [
+        "climate",
+        "fundraising"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Find relevant people at the event",
+        "Join useful event conversations"
+      ],
+      "asks": [
+        "Relevant introductions",
+        "Networking opportunities"
+      ],
+      "offers": [
+        "Peer conversation",
+        "Shared event context"
+      ],
+      "tags": [
+        "Climate Investor Breakfast"
+      ],
+      "bio": "Nadia Torres from Gridworks is attending Climate Investor Breakfast.",
+      "contact_email": "nadia@gridworks.com",
+      "contact_phone": "555-3333",
+      "source_events": [
+        "Climate Investor Breakfast"
+      ]
+    },
+    {
+      "id": "event-201",
+      "entity_type": "resource",
+      "name": "Health AI Meetup",
+      "role": "session",
+      "title": "Imported Event Session",
+      "organization": "Boston",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Bring together attendees interested in Health AI Meetup"
+      ],
+      "asks": [
+        "Attendees who want to join this event"
+      ],
+      "offers": [
+        "Boston",
+        "2026-09-18 18:00",
+        "Shared event context"
+      ],
+      "tags": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "bio": "Health AI Meetup at Boston on 2026-09-18 18:00. Imported dataset records 1 attendee row(s) for this event.",
+      "attendee_count": 1
+    },
+    {
+      "id": "event-202",
+      "entity_type": "resource",
+      "name": "Climate Investor Breakfast",
+      "role": "session",
+      "title": "Imported Event Session",
+      "organization": "Cambridge",
+      "sectors": [
+        "climate",
+        "fundraising"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Bring together attendees interested in Climate Investor Breakfast"
+      ],
+      "asks": [
+        "Attendees who want to join this event"
+      ],
+      "offers": [
+        "Cambridge",
+        "2026-09-19 09:00",
+        "Shared event context"
+      ],
+      "tags": [
+        "climate",
+        "fundraising"
+      ],
+      "bio": "Climate Investor Breakfast at Cambridge on 2026-09-19 09:00. Imported dataset records 2 attendee row(s) for this event.",
+      "attendee_count": 2
+    }
+  ]
+}

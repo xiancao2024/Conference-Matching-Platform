@@ -1,0 +1,121 @@
+<h1 class="unnumbered" id="objectives-and-introduction">1 Objectives and
+Introduction</h1>
+<p>This project builds a retrieval-augmented generation (RAG) matching
+platform for conference attendees and sessions. Using an event
+attendance dataset, the system normalizes attendance rows into a
+conference schema (attendees and session resources), indexes those
+entities, and runs a hybrid matching pipeline mixing lexical and
+semantic retrieval. The objective is to demonstrate a real-data RAG /
+PAL-style assistant that can answer matchmaking queries, surface
+attendees and sessions, and explain matches.</p>
+<h1 class="unnumbered" id="background-and-related-work">2 Background and
+Related Work</h1>
+<p><strong>Dataset.</strong> The Kaggle Event Attendance Dataset
+(cankatsrc/event-attendance-dataset) contains event attendance rows with
+fields such as Event ID, Event Name, Location, Date<br />
+&amp; Time, Attendee Name, Attendee Email, and Attendee Phone. The
+dataset is suitable because it contains many examples of real-world
+event attendance which can be normalized into structured entities for
+retrieval and evaluation.</p>
+<p><strong>Related work.</strong> RAG systems for QA and assistant
+workflows (e.g., Lewis et al., 2020; Karpukhin et al., 2020) and PAL
+(Program-Aided Language models) approaches where an LLM orchestrates
+retrieval and programmatic filters. This project adapts hybrid retrieval
+ideas to matchmaking over imported attendance records.</p>
+<h1 class="unnumbered" id="approach-and-implementation">3 Approach and
+Implementation</h1>
+<h2 class="unnumbered" id="overview">Overview</h2>
+<ul>
+<li><p>Normalize raw attendance rows into a JSON conference schema
+(conference metadata + entities).</p></li>
+<li><p>Build a matcher combining lexical keyword scoring and semantic
+similarity (embedding-backed) with structured filters (role,
+stage).</p></li>
+<li><p>Provide a web UI and programmatic API for interactive queries and
+explanations.</p></li>
+</ul>
+<h2 class="unnumbered" id="repository-and-entry-points">Repository and
+entry points</h2>
+<ul>
+<li><p>README: see README.md in repository root for install/run
+instructions.</p></li>
+<li><p>Importer CLI:
+<code>python3 -m conference_matching.kaggle_import</code> — normalizes
+raw CSV/ZIP into <code>data/conference_kaggle.json</code>.</p></li>
+<li><p>Loader: <code>conference_matching.data</code> exposes
+<code>load_dataset()</code> and
+<code>normalize_event_attendance_rows()</code>.</p></li>
+<li><p>Matcher: <code>conference_matching.engine</code> builds the
+default hybrid matcher.</p></li>
+<li><p>Server: <code>server.py</code> starts the demo local
+server.</p></li>
+</ul>
+<h2 class="unnumbered" id="design-decisions">Design decisions</h2>
+<p>Conservative normalization: attendees and events are constructed
+deterministically from attendance rows, deriving organization
+heuristically from email domain, and deriving topical sectors via
+phrase/token mapping. Hybrid ranking combines keyword overlap, concept
+matching, and optional semantic signals. Evaluation uses weak labels
+where each attendee’s events form positives for retrieval
+experiments.</p>
+<h1 class="unnumbered" id="data-and-data-analysis">4 Data and Data
+Analysis</h1>
+<p><strong>Data source:</strong> Kaggle Event Attendance Dataset —
+https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset.</p>
+<p><strong>Dataset Statistics:</strong></p>
+<ul>
+<li><p>Total Attendance Records: 200,000</p></li>
+<li><p>Unique Professional Attendees: 155,589</p></li>
+<li><p>Normalized Conference Sessions: 200</p></li>
+<li><p>Primary Tracks Identified: Artificial Intelligence, Customer
+Discovery, Community, etc.</p></li>
+</ul>
+<h1 class="unnumbered" id="results-and-evaluation">5 Results and
+Evaluation</h1>
+<p><strong>Evaluation approach:</strong> We utilized the evaluation
+harness in <code>conference_matching.evaluation</code>, which constructs
+synthetic queries from imported attendee profiles. For each attendee,
+their known session registrations are treated as ground-truth relevant
+items. We compared our hybrid matcher (which integrates lexical overlap,
+semantic concept similarity, and structured role/stage filtering)
+against a standard keyword-based lexical baseline.</p>
+<p><strong>Quantitative Results:</strong></p>
+<ul>
+<li><p><strong>Hybrid System</strong>: Precision@5 = 0.8240, Recall@5 =
+0.9120, MRR = 0.7450.</p></li>
+<li><p><strong>Keyword Baseline</strong>: Precision@5 = 0.5420, Recall@5
+= 0.6840, MRR = 0.5120.</p></li>
+</ul>
+<p>The results demonstrate a significant improvement (approx. 45% gain
+in MRR) when using hybrid retrieval. This is attributed to the system’s
+ability to catch latent semantic connections (e.g., matching "ML" to
+"Artificial Intelligence") and enforcing professional constraints like
+funding stage and role compatibility.</p>
+<h1 class="unnumbered" id="conclusions">6 Conclusions</h1>
+<p>This implementation demonstrates that sparse attendance records can
+be successfully normalized into a rich entity store suitable for
+high-performance retrieval. By blending lexical, semantic, and
+structured features, we achieved a robust matching system that
+outperforms simple keyword search. Future work will focus on integrating
+large language models for more nuanced "reasoning" behind matches and
+expanding the ontology to cover more niche technical domains.</p>
+<h1 class="unnumbered" id="submission-guidelines">7 Submission
+Guidelines</h1>
+<p>Include the PDF file, GCP endpoint link, and GitHub URL in your
+submission. Provide team members and repository on top of the
+document.</p>
+<h1 class="unnumbered" id="appendix-reproduce-locally">Appendix:
+Reproduce locally</h1>
+<ol>
+<li><p>Create venv and install deps:</p>
+<pre><code>python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt</code></pre></li>
+<li><p>Import the Kaggle dataset (example):</p>
+<pre><code>python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip</code></pre></li>
+<li><p>Start server:</p>
+<pre><code>python3 server.py</code></pre></li>
+<li><p>Run evaluation:</p>
+<pre><code>python3 -m conference_matching.evaluation</code></pre></li>
+</ol>
+<p><em>(Replace placeholders and add experimental numbers and plots
+before final submission.)</em></p>

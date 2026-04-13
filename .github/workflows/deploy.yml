@@ -1,0 +1,66 @@
+name: Deploy to GCP VM
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: github-deployer@aerial-rarity-484202-j8.iam.gserviceaccount.com
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Deploy to GCE
+      run: |
+        # Use gcloud compute ssh to run deployment commands on the VM
+        # Note: We use IAP tunneling for better reliability if port 22 is blocked
+        gcloud compute ssh instance-20260413-195035 \
+          --zone us-west1-c \
+          --tunnel-through-iap \
+          --command "
+            # Set up the repo on the VM if it doesn't exist
+            if [ ! -d ~/Conference-Matching-Platform ]; then
+              git clone https://github.com/xiancao2024/Conference-Matching-Platform.git ~/Conference-Matching-Platform
+            fi
+            
+            cd ~/Conference-Matching-Platform/repo
+            
+            # Pull latest changes
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Setup environment
+            if [ ! -d .venv ]; then
+              python3 -m venv .venv
+            fi
+            .venv/bin/python -m pip install -r requirements.txt
+            
+            # Check for data
+            if [ ! -f data/conference_kaggle.json ]; then
+              # Attempt to import if missing (requires kagglehub or manual data)
+              .venv/bin/python -m conference_matching.kaggle_import || echo 'Warning: Data import skipped'
+            fi
+            
+            # Restart the server
+            # We use nohup or a systemd service in a real production env, 
+            # but for this demo we'll use the gcp_start script in background
+            pkill -f 'server.py' || true
+            nohup bash scripts/gcp_start.sh > app.log 2>&1 &
+            sleep 5
+            ps aux | grep server.py
+          "

@@ -48,10 +48,38 @@ pip install kagglehub
 python3 -m conference_matching.kaggle_import
 ```
 
-The importer writes:
+The importer writes the normalized JSON to `data/conference_kaggle.json` by default.
 
-```text
-data/conference_kaggle.json
+If you prefer to write or use a different path, set `CONFERENCE_DATA_PATH` when running the server or any CLI that reads the dataset.
+
+Examples
+
+```bash
+# Import from a downloaded zip or extracted folder (writes data/conference_kaggle.json)
+python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
+
+# Import using the bundled default Kaggle id (requires kagglehub)
+pip install kagglehub
+python3 -m conference_matching.kaggle_import
+
+# Run the server using a specific normalized file
+CONFERENCE_DATA_PATH=/full/path/to/conference_kaggle.json python3 server.py
+```
+
+Quick inspection
+
+If `data/conference_kaggle.json` is present you can view basic counts quickly without opening the whole file:
+
+```bash
+# print conference event and attendee counts (run from repo root)
+python3 - <<'PY'
+import json
+with open('data/conference_kaggle.json', 'r', encoding='utf-8') as f:
+	o = json.load(f)
+conf = o.get('conference', {})
+print('events:', conf.get('event_count'))
+print('attendees:', conf.get('attendee_count'))
+PY
 ```
 
 ## Run locally
