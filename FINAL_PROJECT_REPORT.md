@@ -61,12 +61,16 @@ Evaluation approach
 - We utilized the evaluation harness in `conference_matching.evaluation`. For each attendee, their known session registrations are treated as ground-truth relevant items.
 - We compared our hybrid matcher (lexical + semantic + structured) against a keyword-only baseline.
 
-Quantitative Results
+Quantitative Results (weak-label evaluation, 3 queries)
 
-- **Hybrid System**: P@5=0.8240, R@5=0.9120, MRR=0.7450
-- **Keyword Baseline**: P@5=0.5420, R@5=0.6840, MRR=0.5120
+| Metric       | Hybrid | Keyword Baseline |
+|--------------|--------|------------------|
+| Precision@5  | 0.20   | 0.20             |
+| Recall@5     | 1.00   | 1.00             |
+| nDCG@5       | **1.00** | 0.54           |
+| MRR          | **1.00** | 0.39           |
 
-Sample summary: The hybrid system shows a 45% MRR improvement over the keyword baseline, effectively matching concepts like "ML" to "Artificial Intelligence".
+The hybrid system (lexical + sentence-transformer embeddings via `all-MiniLM-L6-v2` + FAISS) achieves perfect nDCG@5 and MRR — ranking the correct session first for every query. The keyword-only baseline achieves the same recall but significantly lower ranking quality (MRR 0.39 vs 1.00), a **157% relative improvement** in MRR for the hybrid approach. Both systems achieve full recall@5 on this dataset, confirming all relevant sessions are surfaced within the top 5 results.
 
 6 Conclusions
 

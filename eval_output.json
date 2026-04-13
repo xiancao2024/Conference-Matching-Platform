@@ -1,0 +1,119 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5399.22it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+{
+  "summary": {
+    "hybrid": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "mrr": 1.0
+    },
+    "keyword": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.5436,
+      "mrr": 0.3889
+    }
+  },
+  "rows": [
+    {
+      "query": "Ava Stone",
+      "system": "hybrid",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "mrr": 1.0,
+      "top_matches": [
+        "event-201",
+        "attendee-ava-northstar-ai",
+        "event-202",
+        "attendee-maya-lumengrid-com",
+        "attendee-nadia-gridworks-com"
+      ]
+    },
+    {
+      "query": "Ava Stone",
+      "system": "keyword",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.6309,
+      "mrr": 0.5,
+      "top_matches": [
+        "attendee-ava-northstar-ai",
+        "event-201",
+        "attendee-maya-lumengrid-com",
+        "attendee-nadia-gridworks-com",
+        "event-202"
+      ]
+    },
+    {
+      "query": "Maya Chen",
+      "system": "hybrid",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "mrr": 1.0,
+      "top_matches": [
+        "event-202",
+        "attendee-maya-lumengrid-com",
+        "attendee-nadia-gridworks-com",
+        "event-201",
+        "attendee-ava-northstar-ai"
+      ]
+    },
+    {
+      "query": "Maya Chen",
+      "system": "keyword",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.5,
+      "mrr": 0.3333,
+      "top_matches": [
+        "attendee-maya-lumengrid-com",
+        "attendee-nadia-gridworks-com",
+        "event-202",
+        "attendee-ava-northstar-ai",
+        "event-201"
+      ]
+    },
+    {
+      "query": "Nadia Torres",
+      "system": "hybrid",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 1.0,
+      "mrr": 1.0,
+      "top_matches": [
+        "event-202",
+        "attendee-nadia-gridworks-com",
+        "attendee-maya-lumengrid-com",
+        "event-201",
+        "attendee-ava-northstar-ai"
+      ]
+    },
+    {
+      "query": "Nadia Torres",
+      "system": "keyword",
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "ndcg_at_5": 0.5,
+      "mrr": 0.3333,
+      "top_matches": [
+        "attendee-nadia-gridworks-com",
+        "attendee-maya-lumengrid-com",
+        "event-202",
+        "attendee-ava-northstar-ai",
+        "event-201"
+      ]
+    }
+  ],
+  "query_count": 3,
+  "note": "Weak-label evaluation uses each attendee's known session history as the relevant set."
+}

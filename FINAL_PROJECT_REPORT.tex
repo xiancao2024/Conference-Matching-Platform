@@ -59,13 +59,22 @@ Conservative normalization: attendees and events are constructed deterministical
 
 \textbf{Evaluation approach:} We utilized the evaluation harness in \texttt{conference\_matching.evaluation}, which constructs synthetic queries from imported attendee profiles. For each attendee, their known session registrations are treated as ground-truth relevant items. We compared our hybrid matcher (which integrates lexical overlap, semantic concept similarity, and structured role/stage filtering) against a standard keyword-based lexical baseline.
 
-\textbf{Quantitative Results:}
-\begin{itemize}
-    \item \textbf{Hybrid System}: Precision@5 = 0.8240, Recall@5 = 0.9120, MRR = 0.7450.
-    \item \textbf{Keyword Baseline}: Precision@5 = 0.5420, Recall@5 = 0.6840, MRR = 0.5120.
-\end{itemize}
+\textbf{Quantitative Results} (weak-label evaluation, 3 attendee queries):
 
-The results demonstrate a significant improvement (approx. 45\% gain in MRR) when using hybrid retrieval. This is attributed to the system's ability to catch latent semantic connections (e.g., matching "ML" to "Artificial Intelligence") and enforcing professional constraints like funding stage and role compatibility.
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Metric} & \textbf{Hybrid} & \textbf{Keyword Baseline} \\
+\hline
+Precision@5 & 0.20 & 0.20 \\
+Recall@5    & 1.00 & 1.00 \\
+nDCG@5      & \textbf{1.00} & 0.54 \\
+MRR         & \textbf{1.00} & 0.39 \\
+\hline
+\end{tabular}
+\end{center}
+
+The hybrid system (lexical + sentence-transformer embeddings via \texttt{all-MiniLM-L6-v2} + FAISS) achieves perfect nDCG@5 and MRR, ranking the correct session first for every query. The keyword-only baseline achieves the same recall but significantly lower ranking quality (MRR 0.39 vs.\ 1.00), a \textbf{157\% relative improvement} in MRR for the hybrid approach. Both systems achieve full Recall@5, confirming all relevant sessions are surfaced within the top 5 results.
 
 \section*{6 Conclusions}
 
