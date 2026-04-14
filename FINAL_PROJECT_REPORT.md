@@ -79,8 +79,8 @@ This implementation demonstrates that attendance records can be normalized into 
 7 Submission Guidelines
 
 - PDF file: include this report as PDF.
-- GCP endpoint: include your deployed demo link (if any).
-- Github URL: provide the repository URL.
+- GCP endpoint: [http://34.169.130.58:8000](http://34.169.130.58:8000)
+- Github URL: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)
 
 Appendix: How to reproduce locally
 
