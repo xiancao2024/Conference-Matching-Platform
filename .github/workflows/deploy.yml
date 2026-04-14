@@ -20,10 +20,15 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v5
 
-    - name: Set authentication environment variables
+    - name: Set auth method flags
       run: |
-        echo "WIF_PROVIDER=${{ vars.WIF_PROVIDER || secrets.WIF_PROVIDER }}" >> $GITHUB_ENV
-        echo "GCP_SA_KEY=${{ secrets.GCP_SA_KEY }}" >> $GITHUB_ENV
+        WIF="${{ vars.WIF_PROVIDER || secrets.WIF_PROVIDER }}"
+        echo "WIF_PROVIDER=${WIF}" >> $GITHUB_ENV
+        if [ -n "${{ secrets.GCP_SA_KEY }}" ]; then
+          echo "HAS_SA_KEY=true" >> $GITHUB_ENV
+        else
+          echo "HAS_SA_KEY=false" >> $GITHUB_ENV
+        fi
 
     - name: Validate GCP Auth Configuration
       run: |
@@ -31,25 +36,20 @@ jobs:
           case "${WIF_PROVIDER}" in
             projects/*/locations/global/workloadIdentityPools/*/providers/*) ;;
             *)
-              echo "::error title=Invalid WIF_PROVIDER::Expected a provider resource like projects/123456789/locations/global/workloadIdentityPools/github-pool/providers/github-provider."
-              echo "::error title=Invalid WIF_PROVIDER::Do not store a service-account JSON key, base64 blob, or downloaded credential file in WIF_PROVIDER."
+              echo "::error title=Invalid WIF_PROVIDER::Expected format: projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER"
               exit 1
               ;;
           esac
-        elif [ -n "${GCP_SA_KEY}" ]; then
-          if ! printf '%s' "${GCP_SA_KEY}" | jq -e . >/dev/null 2>&1; then
-            echo "::error title=Invalid GCP_SA_KEY::Expected the raw JSON contents of the Google Cloud service account key."
-            echo "::error title=Invalid GCP_SA_KEY::If you are using Workload Identity Federation, remove GCP_SA_KEY and set WIF_PROVIDER instead."
-            exit 1
-          fi
+        elif [ "${HAS_SA_KEY}" = "true" ]; then
+          echo "Service account key secret found, proceeding with SA key auth."
         else
-          echo "::error title=Missing Google Cloud credentials::Set WIF_PROVIDER for Workload Identity Federation or GCP_SA_KEY for a service account JSON key."
+          echo "::error title=Missing credentials::Set GCP_SA_KEY (Actions secret) or WIF_PROVIDER (Actions variable)."
           exit 1
         fi
 
     - name: Google Auth via WIF
       if: env.WIF_PROVIDER != ''
-      id: auth
+      id: auth-wif
       uses: google-github-actions/auth@v3
       with:
         workload_identity_provider: ${{ env.WIF_PROVIDER }}
@@ -57,11 +57,11 @@ jobs:
         project_id: ${{ env.GCP_PROJECT_ID }}
 
     - name: Google Auth via Service Account Key
-      if: env.WIF_PROVIDER == '' && env.GCP_SA_KEY != ''
+      if: env.WIF_PROVIDER == '' && env.HAS_SA_KEY == 'true'
       id: auth-key
       uses: google-github-actions/auth@v3
       with:
-        credentials_json: ${{ env.GCP_SA_KEY }}
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
         project_id: ${{ env.GCP_PROJECT_ID }}
 
     - name: Set up Cloud SDK
