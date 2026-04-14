@@ -34,7 +34,7 @@ def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[di
         f"Here are the top candidate matches:\n{candidates}\n\n"
         f"For each candidate, write one sentence explaining why it is or is not relevant to the query. "
         f"Reply ONLY as a JSON array of objects with keys \"rank\" (1-based int) and \"reason\" (string). "
-        f"Example: [{\"rank\":1,\"reason\":\"...\"}]"
+        f"Example: [{{ \"rank\": 1, \"reason\": \"...\" }}]"
     )
 
     payload = json.dumps({
