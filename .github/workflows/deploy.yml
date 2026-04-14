@@ -93,5 +93,9 @@ jobs:
             nohup env PYTHONPATH=\$(pwd) CONFERENCE_DATA_PATH=\$(pwd)/data/conference_kaggle.json \
               /home/xiancao/venv/bin/python server.py > app.log 2>&1 &
             sleep 3
-            ps aux | grep server.py | grep -v grep
+            if ! ps aux | grep server.py | grep -v grep; then
+              echo "Server failed to start. Tailing app.log:"
+              cat app.log
+              exit 1
+            fi
           "
