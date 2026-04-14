@@ -21,10 +21,12 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Set auth method flags
+      env:
+        SECRET_KEY: ${{ secrets.GCP_SA_KEY }}
       run: |
         WIF="${{ vars.WIF_PROVIDER || secrets.WIF_PROVIDER }}"
         echo "WIF_PROVIDER=${WIF}" >> $GITHUB_ENV
-        if [ -n "${{ secrets.GCP_SA_KEY }}" ]; then
+        if [ -n "$SECRET_KEY" ]; then
           echo "HAS_SA_KEY=true" >> $GITHUB_ENV
         else
           echo "HAS_SA_KEY=false" >> $GITHUB_ENV
