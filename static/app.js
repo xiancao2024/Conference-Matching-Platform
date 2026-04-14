@@ -111,8 +111,12 @@ function renderMatches(question, payload) {
   }
 
   const topMatches = matches.slice(0, 4);
+  const llmBlock = payload.llm_summary
+    ? `<div class="llm-summary"><span class="llm-badge">&#x1F916; llama3</span> ${escapeHtml(payload.llm_summary)}</div>`
+    : "";
   return `
     <p class="message-title">Blockie AI</p>
+    ${llmBlock}
     <p>Here are the strongest matches I found for “${escapeHtml(question)}”.</p>
     <div class="result-stack">
       ${topMatches

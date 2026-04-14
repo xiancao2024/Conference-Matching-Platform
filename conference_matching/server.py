@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 from .engine import build_default_matcher
 from .evaluation import evaluate
+from .llm import summarize_matches
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -52,7 +53,12 @@ class ConferenceRequestHandler(SimpleHTTPRequestHandler):
         except json.JSONDecodeError:
             self.send_error(HTTPStatus.BAD_REQUEST, "Invalid JSON body")
             return
-        self._send_json(get_matcher().match(payload))
+        result = get_matcher().match(payload)
+        query_text = payload.get("notes") or payload.get("headline") or ""
+        llm_summary = summarize_matches(query_text, result.get("matches", []))
+        if llm_summary:
+            result["llm_summary"] = llm_summary
+        self._send_json(result)
 
     def log_message(self, format: str, *args) -> None:
         return
