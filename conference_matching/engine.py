@@ -252,24 +252,75 @@ class ConferenceMatcher:
                 )
             )
         # Optional semantic embeddings (sentence-transformers + faiss)
+        # Loads precomputed index from disk if available and entity count matches.
+        # Falls back to encoding on-the-fly only for small datasets (<= 5000 entities).
         self._has_embeddings = False
         try:
             from sentence_transformers import SentenceTransformer
             import faiss
+            from pathlib import Path
 
             model_name = "all-MiniLM-L6-v2"
             self._embed_model = SentenceTransformer(model_name)
-            texts = [ie.searchable_text for ie in self.entities]
-            if texts:
-                vecs = np.array(self._embed_model.encode(texts, normalize_embeddings=True), dtype="float32")
-                dim = vecs.shape[1]
-                index = faiss.IndexFlatIP(dim)
+            n = len(self.entities)
+
+            # Resolve data dir relative to the dataset file or cwd
+            data_dir = Path(source).parent if source else Path("data")
+            emb_path = data_dir / "embeddings.npy"
+            idx_path = data_dir / "faiss.index"
+
+            if emb_path.exists():
+                vecs = np.load(str(emb_path)).astype("float32")
+                if vecs.shape[0] == n:
+                    # Precomputed embeddings match — load or rebuild FAISS index
+                    if idx_path.exists():
+                        index = faiss.read_index(str(idx_path))
+                    else:
+                        index = faiss.IndexFlatIP(vecs.shape[1])
+                        index.add(vecs)
+                        faiss.write_index(index, str(idx_path))
+                    self._faiss_index = index
+                    self._embeddings = vecs
+                    self._has_embeddings = True
+                else:
+                    # Stale cache — encode only if dataset is small enough
+                    if n <= 5000:
+                        vecs = np.array(
+                            self._embed_model.encode(
+                                [ie.searchable_text for ie in self.entities],
+                                normalize_embeddings=True,
+                                batch_size=256,
+                                show_progress_bar=False,
+                            ),
+                            dtype="float32",
+                        )
+                        np.save(str(emb_path), vecs)
+                        index = faiss.IndexFlatIP(vecs.shape[1])
+                        index.add(vecs)
+                        faiss.write_index(index, str(idx_path))
+                        self._faiss_index = index
+                        self._embeddings = vecs
+                        self._has_embeddings = True
+            elif n <= 5000:
+                # No cache, small dataset — encode and save
+                vecs = np.array(
+                    self._embed_model.encode(
+                        [ie.searchable_text for ie in self.entities],
+                        normalize_embeddings=True,
+                        batch_size=256,
+                        show_progress_bar=False,
+                    ),
+                    dtype="float32",
+                )
+                data_dir.mkdir(parents=True, exist_ok=True)
+                np.save(str(emb_path), vecs)
+                index = faiss.IndexFlatIP(vecs.shape[1])
                 index.add(vecs)
+                faiss.write_index(index, str(idx_path))
                 self._faiss_index = index
                 self._embeddings = vecs
                 self._has_embeddings = True
         except Exception:
-            # sentence-transformers or faiss not available; continue without embeddings
             self._has_embeddings = False
 
     def options(self) -> dict[str, Any]:
@@ -309,11 +360,18 @@ class ConferenceMatcher:
         return ranked[:limit]
 
     def match(self, query: dict[str, Any], limit: int = 5) -> dict[str, Any]:
+        # Merge free-text notes/headline into sectors so concept extraction works
+        free_text = " ".join(filter(None, [
+            query.get("notes", ""),
+            query.get("headline", ""),
+            query.get("q", ""),
+        ]))
+        inferred_sectors = _normalize_list(query.get("sectors")) + _extract_concepts(free_text)
         normalized_query = {
             "conference_id": query.get("conference_id", self.metadata["id"]),
             "role": _normalize_role(query.get("role", "participant")),
             "stage": _normalize_stage_label(query.get("stage", "")) if query.get("stage") else "",
-            "sectors": _normalize_list(query.get("sectors")),
+            "sectors": inferred_sectors,
             "looking_for": _normalize_list(query.get("looking_for")),
             "target_roles": list(_infer_target_roles(query)),
             "asks": _normalize_list(query.get("asks")),
@@ -327,24 +385,44 @@ class ConferenceMatcher:
         query_lexical = _weighted_counter(query_tokens, self.lexical_idf)
         query_semantic = _weighted_counter(query_concepts, self.concept_idf)
 
+        # Encode query once for embedding similarity
+        query_embedding: np.ndarray | None = None
+        if self._has_embeddings:
+            try:
+                query_embedding = np.array(
+                    self._embed_model.encode([query_text], normalize_embeddings=True), dtype="float32"
+                )
+            except Exception:
+                query_embedding = None
+
+        # Use FAISS ANN to get top-K candidates by embedding, then re-rank with full hybrid score
+        FAISS_CANDIDATES = 200
+        candidate_indices: list[int] | None = None
+        if query_embedding is not None:
+            try:
+                _, I = self._faiss_index.search(query_embedding, min(FAISS_CANDIDATES, len(self.entities)))
+                candidate_indices = I[0].tolist()
+            except Exception:
+                candidate_indices = None
+
+        # Score candidates (ANN shortlist) or all entities if no embeddings
+        pool = (
+            [(i, self.entities[i]) for i in candidate_indices if 0 <= i < len(self.entities)]
+            if candidate_indices is not None
+            else list(enumerate(self.entities))
+        )
+
         ranked = []
-        for indexed in self.entities:
+        for idx, indexed in pool:
             breakdown = self._structured_score(normalized_query, indexed.entity)
             lexical_score = _cosine_similarity(query_lexical, indexed.lexical_vector)
             semantic_score = _cosine_similarity(query_semantic, indexed.concept_vector)
             embedding_score = 0.0
-            if self._has_embeddings:
+            if query_embedding is not None:
                 try:
-                    qvec = np.array(self._embed_model.encode([indexed.searchable_text], normalize_embeddings=True), dtype="float32")[0]
-                    # compute dot with all embeddings if needed; faster to use index but we compute pairwise here
-                    # compute cosine (dot since normalized)
-                    # find corresponding vector by matching id - entities aligned with embeddings
-                    # use index search for single vector
-                    D, I = self._faiss_index.search(qvec.reshape(1, -1), 1)
-                    embedding_score = float(D[0][0])
+                    embedding_score = float(np.dot(query_embedding[0], self._embeddings[idx]))
                 except Exception:
                     embedding_score = 0.0
-            # Combine scores: lexical, concept-based semantic, embedding-based semantic, and structured boosts
             total = lexical_score * 0.25 + semantic_score * 0.2 + embedding_score * 0.35 + breakdown["structured_total"]
             breakdown["lexical"] = round(lexical_score, 4)
             breakdown["semantic"] = round(semantic_score, 4)

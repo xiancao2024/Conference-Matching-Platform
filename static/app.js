@@ -62,12 +62,23 @@ function detectSectors(question) {
   const text = question.toLowerCase();
   const sectors = [];
   const checks = [
+    ["health tech", "healthcare"],
+    ["health tech", "artificial intelligence"],
+    ["healthtech", "healthcare"],
+    ["medtech", "healthcare"],
+    ["biotech", "healthcare"],
     ["ai", "artificial intelligence"],
+    ["machine learning", "artificial intelligence"],
     ["health", "healthcare"],
+    ["medical", "healthcare"],
     ["climate", "climate"],
+    ["sustainability", "climate"],
     ["community", "community"],
     ["network", "community"],
-    ["customer", "customer discovery"]
+    ["customer", "customer discovery"],
+    ["startup", "entrepreneurship"],
+    ["founder", "entrepreneurship"],
+    ["invest", "fundraising"]
   ];
   checks.forEach(([needle, sector]) => {
     if (text.includes(needle)) {
