@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from .engine import build_default_matcher
 from .evaluation import evaluate
-from .llm import summarize_matches
+from .llm import llm_rerank_and_explain
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -55,9 +55,7 @@ class ConferenceRequestHandler(SimpleHTTPRequestHandler):
             return
         result = get_matcher().match(payload)
         query_text = payload.get("notes") or payload.get("headline") or ""
-        llm_summary = summarize_matches(query_text, result.get("matches", []))
-        if llm_summary:
-            result["llm_summary"] = llm_summary
+        result["matches"] = llm_rerank_and_explain(query_text, result.get("matches", []))
         self._send_json(result)
 
     def log_message(self, format: str, *args) -> None:

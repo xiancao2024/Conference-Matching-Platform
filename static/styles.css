@@ -390,18 +390,18 @@ body {
   }
 }
 
-.llm-summary {
+.llm-reason {
   background: #f0f4ff;
   border-left: 3px solid #4f6ef7;
-  border-radius: 6px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  font-size: 0.92rem;
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-top: 6px;
+  font-size: 0.88rem;
   line-height: 1.5;
   color: #1a1a2e;
 }
 .llm-badge {
   font-weight: 600;
   color: #4f6ef7;
-  margin-right: 6px;
+  margin-right: 4px;
 }

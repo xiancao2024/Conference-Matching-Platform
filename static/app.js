@@ -111,12 +111,8 @@ function renderMatches(question, payload) {
   }
 
   const topMatches = matches.slice(0, 4);
-  const llmBlock = payload.llm_summary
-    ? `<div class="llm-summary"><span class="llm-badge">&#x1F916; llama3</span> ${escapeHtml(payload.llm_summary)}</div>`
-    : "";
   return `
     <p class="message-title">Blockie AI</p>
-    ${llmBlock}
     <p>Here are the strongest matches I found for “${escapeHtml(question)}”.</p>
     <div class="result-stack">
       ${topMatches
@@ -129,6 +125,7 @@ function renderMatches(question, payload) {
                 ${(match.sectors || []).slice(0, 2).map((sector) => `<span class="mini-pill">${escapeHtml(sector)}</span>`).join("")}
               </div>
               <p>${escapeHtml((match.explanation && match.explanation[0]) || match.bio || "")}</p>
+              ${match.llm_reason ? `<p class="llm-reason"><span class="llm-badge">&#x1F916; llama3</span> ${escapeHtml(match.llm_reason)}</p>` : ""}
             </article>
           `
         )
