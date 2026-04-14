@@ -89,9 +89,9 @@ jobs:
             cd \"\${APP_DIR}\"
             git fetch origin main
             git reset --hard origin/main
-            pkill -f 'server.py' || true
+            sudo pkill -f 'server.py' || true
             nohup env PYTHONPATH=\$(pwd) CONFERENCE_DATA_PATH=\$(pwd)/data/conference_kaggle.json \
-              /home/xiancao/venv/bin/python server.py > app.log 2>&1 &
+              /home/xiancao/venv/bin/python server.py --host 0.0.0.0 --port 8000 > app.log 2>&1 &
             sleep 3
             if ! ps aux | grep server.py | grep -v grep; then
               echo "Server failed to start. Tailing app.log:"
