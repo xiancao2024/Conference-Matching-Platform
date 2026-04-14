@@ -51,12 +51,13 @@ def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[di
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with urllib.request.urlopen(req, timeout=300) as resp:
             raw = json.loads(resp.read()).get("response", "").strip()
         # extract JSON array from response
         start = raw.find("[")
         end = raw.rfind("]") + 1
         if start == -1 or end == 0:
+            print("LLM returned no JSON array:", raw)
             return matches
         items = json.loads(raw[start:end])
         rank_map = {item["rank"]: item["reason"] for item in items if "rank" in item and "reason" in item}
@@ -65,5 +66,6 @@ def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[di
             if reason:
                 m["llm_reason"] = reason
         return top + matches[5:]
-    except Exception:
+    except Exception as e:
+        print("LLM Error:", e)
         return matches
