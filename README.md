@@ -128,7 +128,7 @@ If your GCP VM is already created, the simplest deployment path is:
 Example commands on the VM:
 
 ```bash
-cd ~/Conference-Matching-Platform/repo
+cd ~/Conference-Matching-Platform
 python3 -m venv .venv
 .venv/bin/python -m pip install kagglehub
 .venv/bin/python -m conference_matching.kaggle_import

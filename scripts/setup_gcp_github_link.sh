@@ -60,7 +60,9 @@ gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
 echo "Setup Complete!"
 echo ""
 echo "----------------------------------------------------------------"
-echo "WIF Provider ID for your GitHub Workflow (Copy this to a GitHub Secret named WIF_PROVIDER):"
+echo "WIF Provider ID for your GitHub Workflow:"
+echo "Copy the exact resource name below into a GitHub Actions secret or repo variable named WIF_PROVIDER."
+echo "This value is plain text, not a JSON credential and not a downloaded key file."
 gcloud iam workload-identity-pools providers describe "${PROVIDER_NAME}" \
     --location="global" --workload-identity-pool="${POOL_NAME}" --project="${PROJECT_ID}" \
     --format='value(name)'

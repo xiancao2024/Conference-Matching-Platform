@@ -7,30 +7,87 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      GCP_PROJECT_ID: aerial-rarity-484202-j8
+      GCP_SERVICE_ACCOUNT: github-deployer@aerial-rarity-484202-j8.iam.gserviceaccount.com
+      GCE_INSTANCE: instance-20260413-195035
+      GCE_ZONE: us-west1-c
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
-    - name: Google Auth
-      uses: google-github-actions/auth@v2
+    - name: Validate GCP Auth Configuration
+      env:
+        WIF_PROVIDER: ${{ vars.WIF_PROVIDER || secrets.WIF_PROVIDER }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      run: |
+        if [ -n "${WIF_PROVIDER}" ]; then
+          case "${WIF_PROVIDER}" in
+            projects/*/locations/global/workloadIdentityPools/*/providers/*) ;;
+            *)
+              echo "::error title=Invalid WIF_PROVIDER::Expected a provider resource like projects/123456789/locations/global/workloadIdentityPools/github-pool/providers/github-provider."
+              echo "::error title=Invalid WIF_PROVIDER::Do not store a service-account JSON key, base64 blob, or downloaded credential file in WIF_PROVIDER."
+              exit 1
+              ;;
+          esac
+        elif [ -n "${GCP_SA_KEY}" ]; then
+          if ! printf '%s' "${GCP_SA_KEY}" | jq -e . >/dev/null 2>&1; then
+            echo "::error title=Invalid GCP_SA_KEY::Expected the raw JSON contents of the Google Cloud service account key."
+            echo "::error title=Invalid GCP_SA_KEY::If you are using Workload Identity Federation, remove GCP_SA_KEY and set WIF_PROVIDER instead."
+            exit 1
+          fi
+        else
+          echo "::error title=Missing Google Cloud credentials::Set WIF_PROVIDER for Workload Identity Federation or GCP_SA_KEY for a service account JSON key."
+          exit 1
+        fi
+
+    - name: Google Auth via WIF
+      if: ${{ vars.WIF_PROVIDER != '' || secrets.WIF_PROVIDER != '' }}
+      id: auth
+      uses: google-github-actions/auth@v3
+      with:
+        workload_identity_provider: ${{ vars.WIF_PROVIDER || secrets.WIF_PROVIDER }}
+        service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
+
+    - name: Google Auth via Service Account Key
+      if: ${{ vars.WIF_PROVIDER == '' && secrets.WIF_PROVIDER == '' && secrets.GCP_SA_KEY != '' }}
+      id: auth-key
+      uses: google-github-actions/auth@v3
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
 
     - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
+      uses: google-github-actions/setup-gcloud@v3
+      with:
+        project_id: ${{ env.GCP_PROJECT_ID }}
+        version: '>= 363.0.0'
 
     - name: Deploy to GCE
       run: |
-        gcloud compute ssh instance-20260413-195035 \
-          --zone us-west1-c \
+        gcloud compute ssh "${GCE_INSTANCE}" \
+          --zone "${GCE_ZONE}" \
           --tunnel-through-iap \
           --command "
-            cd ~/repo
+            set -e
+            APP_DIR=\$HOME/repo
+            if [ ! -d \"\${APP_DIR}/.git\" ]; then
+              APP_DIR=\$HOME/Conference-Matching-Platform
+            fi
+            if [ ! -d \"\${APP_DIR}/.git\" ]; then
+              git clone https://github.com/xiancao2024/Conference-Matching-Platform.git \"\${APP_DIR}\"
+            fi
+            cd \"\${APP_DIR}\"
             git fetch origin main
             git reset --hard origin/main
             pkill -f 'server.py' || true
             nohup env PYTHONPATH=\$(pwd) CONFERENCE_DATA_PATH=\$(pwd)/data/conference_kaggle.json \
               /home/xiancao/venv/bin/python server.py > app.log 2>&1 &
-            sleep 3 && ps aux | grep server.py | grep -v grep
+            sleep 3
+            ps aux | grep server.py | grep -v grep
           "
