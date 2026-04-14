@@ -5,6 +5,7 @@ import re
 from collections import Counter
 import numpy as np
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from .data import conference_entities, conference_metadata
@@ -255,24 +256,21 @@ class ConferenceMatcher:
         # Loads precomputed index from disk if available and entity count matches.
         # Falls back to encoding on-the-fly only for small datasets (<= 5000 entities).
         self._has_embeddings = False
+        self._embed_model = None
+        self._embeddings: np.ndarray | None = None
+        self._faiss_index = None
+        data_dir = Path(source).parent if source else Path("data")
+        emb_path = data_dir / "embeddings.npy"
+        idx_path = data_dir / "faiss.index"
+        n = len(self.entities)
         try:
-            from sentence_transformers import SentenceTransformer
             import faiss
-            from pathlib import Path
-
-            model_name = "all-MiniLM-L6-v2"
-            self._embed_model = SentenceTransformer(model_name)
-            n = len(self.entities)
-
-            # Resolve data dir relative to the dataset file or cwd
-            data_dir = Path(source).parent if source else Path("data")
-            emb_path = data_dir / "embeddings.npy"
-            idx_path = data_dir / "faiss.index"
 
             if emb_path.exists():
                 vecs = np.load(str(emb_path)).astype("float32")
                 if vecs.shape[0] == n:
-                    # Precomputed embeddings match — load or rebuild FAISS index
+                    # Precomputed embeddings match — load or rebuild FAISS index.
+                    # This path stays offline-safe and does not require the encoder model.
                     if idx_path.exists():
                         index = faiss.read_index(str(idx_path))
                     else:
@@ -282,27 +280,16 @@ class ConferenceMatcher:
                     self._faiss_index = index
                     self._embeddings = vecs
                     self._has_embeddings = True
-                else:
-                    # Stale cache — encode only if dataset is small enough
-                    if n <= 5000:
-                        vecs = np.array(
-                            self._embed_model.encode(
-                                [ie.searchable_text for ie in self.entities],
-                                normalize_embeddings=True,
-                                batch_size=256,
-                                show_progress_bar=False,
-                            ),
-                            dtype="float32",
-                        )
-                        np.save(str(emb_path), vecs)
-                        index = faiss.IndexFlatIP(vecs.shape[1])
-                        index.add(vecs)
-                        faiss.write_index(index, str(idx_path))
-                        self._faiss_index = index
-                        self._embeddings = vecs
-                        self._has_embeddings = True
-            elif n <= 5000:
-                # No cache, small dataset — encode and save
+        except Exception:
+            self._has_embeddings = False
+
+        needs_fresh_embeddings = (not self._has_embeddings) and n <= 5000
+        if needs_fresh_embeddings:
+            try:
+                import faiss
+                from sentence_transformers import SentenceTransformer
+
+                self._embed_model = SentenceTransformer("all-MiniLM-L6-v2", local_files_only=True)
                 vecs = np.array(
                     self._embed_model.encode(
                         [ie.searchable_text for ie in self.entities],
@@ -320,8 +307,16 @@ class ConferenceMatcher:
                 self._faiss_index = index
                 self._embeddings = vecs
                 self._has_embeddings = True
-        except Exception:
-            self._has_embeddings = False
+            except Exception:
+                self._has_embeddings = False
+
+        if self._has_embeddings:
+            try:
+                from sentence_transformers import SentenceTransformer
+
+                self._embed_model = SentenceTransformer("all-MiniLM-L6-v2", local_files_only=True)
+            except Exception:
+                self._embed_model = None
 
     def options(self) -> dict[str, Any]:
         sectors = sorted({sector for entity in self.entities for sector in entity.entity.get("sectors", [])})
@@ -387,7 +382,7 @@ class ConferenceMatcher:
 
         # Encode query once for embedding similarity
         query_embedding: np.ndarray | None = None
-        if self._has_embeddings:
+        if self._has_embeddings and self._embed_model is not None:
             try:
                 query_embedding = np.array(
                     self._embed_model.encode([query_text], normalize_embeddings=True), dtype="float32"
