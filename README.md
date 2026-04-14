@@ -152,6 +152,14 @@ gcloud compute ssh YOUR_INSTANCE_NAME --zone YOUR_ZONE -- -L 8000:localhost:8000
 
 Then open `http://127.0.0.1:8000` on your laptop.
 
+### Direct Fast Deployment command
+
+If you want to quickly deploy code changes directly to a running VM from your local machine, run the following `gcloud` SSH command. This pulls the latest `main` branch, stops the old server, and restarts it using `nohup` so it stays alive:
+
+```bash
+gcloud compute ssh instance-20260413-195035 --zone us-west1-c --project=aerial-rarity-484202-j8 --command="bash ~/deploy.sh"
+```
+*(Ensure `~/deploy.sh` is defined on your VM to execute `git pull` and restart the `server.py` process).*
 ## Evaluation
 
 The evaluation module now uses weak labels derived from the real attendance data:
