@@ -473,3 +473,33 @@ body {
   line-height: 1.9;
 }
 
+.result-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f1f5fd;
+  border: 1px solid #d8e2f5;
+  color: #3a5080;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.result-bullets {
+  margin: 6px 0 0 16px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.87rem;
+  line-height: 1.75;
+}
+
+.result-bullets li::marker {
+  content: "💡 ";
+}

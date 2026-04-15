@@ -110,31 +110,95 @@ function isWeakQuery(text) {
 }
 
 function scoreLabel(score) {
-  if (score >= 0.55) return { icon: "✅", text: "Strong match", cls: "signal-strong" };
-  if (score >= 0.35) return { icon: "⚠️", text: "Possible match", cls: "signal-weak" };
+  if (score >= 0.55) return { icon: "✅", cls: "signal-strong" };
+  if (score >= 0.35) return { icon: "⚠️", cls: "signal-weak" };
   return null;
 }
 
-function buildMatchSummary(match, question) {
-  const sectors = (match.sectors || []).slice(0, 2).join(" & ");
-  const role = match.role === "session" ? "event" : "profile";
-  if (sectors) return `Matches your interest in ${sectors}`;
-  if (match.score >= 0.55) return `Strong ${role} match for your query`;
-  return `May relate to your search`;
+function extractEventMeta(name, bio) {
+  const n = name.toLowerCase();
+  const level =
+    n.includes("advanced") || n.includes("expert") ? "Advanced" :
+    n.includes("intermediate") ? "Intermediate" :
+    (n.includes("beginner") || n.includes("fundamental") || n.includes("basic") || n.includes("intro")) ? "Beginner-friendly" : null;
+
+  const type =
+    n.includes("workshop") ? "Workshop 🛠" :
+    n.includes("summit")   ? "Summit 🏔" :
+    n.includes("seminar")  ? "Seminar 📖" :
+    n.includes("hackathon")? "Hackathon 💻" :
+    n.includes("panel")    ? "Panel 🎙" :
+    n.includes("forum")    ? "Forum 💬" :
+    n.includes("conference")? "Conference 🎤" : "Session";
+
+  const attendeeMatch = (bio || "").match(/records (\d[\d,]*) attendee/);
+  const attendeeCount = attendeeMatch ? parseInt(attendeeMatch[1].replace(/,/g, "")) : null;
+
+  const focusWords = ["profit-focused","revenue","demand-driven","reactive","strategic","collaborative","applied","enterprise","global","practical","hands-on","real-time"];
+  const adjectives = focusWords.filter(w => n.includes(w));
+
+  return { level, type, attendeeCount, adjectives };
+}
+
+function buildCardContent(match) {
+  const role = match.role;
+  const sectors = (match.sectors || []).slice(0, 2);
+  const topSector = sectors[0] || "this topic";
+
+  if (role === "session" || match.entity_type === "resource") {
+    const meta = extractEventMeta(match.name || "", match.bio || "");
+    const adj = meta.adjectives[0] ? meta.adjectives[0].replace(/-/g, " ") : null;
+
+    const why = adj
+      ? `Covers ${adj} applications in ${topSector}`
+      : sectors.length ? `Deep dive into ${sectors.join(" & ")}` : "Matches your query";
+
+    const bullets = [];
+    if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
+      bullets.push(`How to apply ${topSector} for measurable business outcomes`);
+    if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("reactive") || meta.adjectives.includes("real-time"))
+      bullets.push("Real-time and demand-driven system design patterns");
+    if (meta.type && meta.type.startsWith("Workshop"))
+      bullets.push("Hands-on exercises and practical takeaways");
+    if (meta.adjectives.includes("enterprise") || meta.adjectives.includes("global"))
+      bullets.push("Enterprise-scale case studies and strategies");
+    if (!bullets.length && topSector)
+      bullets.push(`Practical coverage of ${topSector}`);
+
+    const badges = [];
+    if (meta.level)        badges.push(`📊 ${meta.level}`);
+    if (meta.type)         badges.push(`🎯 ${meta.type}`);
+    if (meta.attendeeCount && meta.attendeeCount >= 500)
+      badges.push(`🔥 ${meta.attendeeCount.toLocaleString()} attendees`);
+
+    return { why, bullets, badges };
+  } else {
+    // People card
+    const org = match.organization && match.organization !== "Example" ? match.organization : null;
+    const why = org
+      ? `Active in ${topSector} — works at ${org}`
+      : sectors.length ? `Active in ${sectors.join(" & ")} events` : "Attended similar sessions";
+    const bullets = [
+      `Attended ${topSector} conference sessions`,
+      "Potential peer to connect with at the event"
+    ];
+    return { why, bullets, badges: [] };
+  }
 }
 
 function renderCard(match, index) {
   const confidence = scoreLabel(match.score);
-  if (!confidence) return "";  // hide low-confidence results entirely
-  const summary = buildMatchSummary(match, "");
-  const location = match.organization || "";
+  if (!confidence) return "";
+  const { why, bullets, badges } = buildCardContent(match);
   const tags = (match.sectors || []).slice(0, 3);
   return `
     <article class="result-item">
       <h3>#${index + 1} ${escapeHtml(match.name)}</h3>
-      <p class="result-meta-line">📍 ${escapeHtml(location)} · <span class="role-badge">${escapeHtml(match.role)}</span></p>
+      <p class="result-meta-line">📍 ${escapeHtml(match.organization || "")} · <span class="role-badge">${escapeHtml(match.role)}</span></p>
       ${tags.length ? `<div class="result-meta">${tags.map(s => `<span class="mini-pill">🏷 ${escapeHtml(s)}</span>`).join("")}</div>` : ""}
-      <p class="result-summary ${confidence.cls}">${confidence.icon} ${escapeHtml(summary)}</p>
+      ${badges.length ? `<div class="result-badges">${badges.map(b => `<span class="meta-badge">${escapeHtml(b)}</span>`).join("")}</div>` : ""}
+      <p class="result-summary ${confidence.cls}">${confidence.icon} ${escapeHtml(why)}</p>
+      ${bullets.length ? `<ul class="result-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
     </article>
   `;
 }
