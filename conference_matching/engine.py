@@ -249,6 +249,11 @@ def _topic_evidence(query: dict[str, Any], entity: dict[str, Any]) -> list[str]:
     return _canonical_overlap(query_topics, entity_texts)
 
 
+def _query_mentions_events(query: dict[str, Any]) -> bool:
+    query_text = _build_query_text(query).lower()
+    return any(token in query_text for token in ("event", "events", "session", "sessions", "conference", "conferences"))
+
+
 def _adjacent_stages(query_stage: str) -> set[str]:
     if query_stage == "pre-seed":
         return {"pre-seed", "seed"}
@@ -396,6 +401,16 @@ class ConferenceMatcher:
         ranked.sort(key=lambda item: item["score"], reverse=True)
         return ranked[:limit]
 
+    def _topic_event_names(self, query: dict[str, Any]) -> set[str]:
+        event_names: set[str] = set()
+        for indexed in self.entities:
+            entity = indexed.entity
+            if entity.get("entity_type") != "resource":
+                continue
+            if _topic_evidence(query, entity):
+                event_names.add(entity.get("name", ""))
+        return {name for name in event_names if name}
+
     def match(self, query: dict[str, Any], limit: int = 5) -> dict[str, Any]:
         # Merge free-text notes/headline into sectors so concept extraction works
         free_text = " ".join(filter(None, [
@@ -449,8 +464,19 @@ class ConferenceMatcher:
             else list(enumerate(self.entities))
         )
 
+        target_roles = {_normalize_role(role) for role in normalized_query.get("target_roles", [])}
+        people_search = bool(target_roles & {"participant", "founder", "mentor", "investor"})
+        explicit_topics = bool(normalized_query.get("sectors"))
+        event_link_query = people_search and explicit_topics and _query_mentions_events(normalized_query)
+        matching_event_names = self._topic_event_names(normalized_query) if event_link_query else set()
+
         ranked = []
         for idx, indexed in pool:
+            entity = indexed.entity
+            if event_link_query and entity.get("entity_type") == "attendee":
+                attendee_events = set(entity.get("source_events", []))
+                if not (attendee_events & matching_event_names):
+                    continue
             topic_evidence = _topic_evidence(normalized_query, indexed.entity)
             breakdown = self._structured_score(normalized_query, indexed.entity)
             lexical_score = _cosine_similarity(query_lexical, indexed.lexical_vector)
@@ -467,9 +493,6 @@ class ConferenceMatcher:
             breakdown["embedding"] = round(embedding_score, 4)
             ranked.append(self._result_payload(indexed, total, "hybrid", breakdown, normalized_query, topic_evidence))
 
-        explicit_topics = bool(normalized_query.get("sectors"))
-        target_roles = {_normalize_role(role) for role in normalized_query.get("target_roles", [])}
-        people_search = bool(target_roles & {"participant", "founder", "mentor", "investor"})
         if explicit_topics and people_search:
             ranked = [item for item in ranked if item.get("topic_evidence")]
 
