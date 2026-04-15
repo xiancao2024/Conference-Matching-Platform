@@ -455,3 +455,21 @@ body {
   padding: 6px 10px;
   line-height: 1.5;
 }
+
+.signal-strong { color: #2d6a4f !important; }
+.signal-weak   { color: #b08030 !important; }
+
+.result-suggestions-hint {
+  margin: 10px 0 4px !important;
+  font-weight: 600;
+  color: var(--muted) !important;
+}
+
+.query-suggestions {
+  margin: 4px 0 0 18px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.9;
+}
+
