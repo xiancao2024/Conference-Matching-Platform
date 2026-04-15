@@ -17,9 +17,52 @@ def _ollama_available() -> bool:
         return False
 
 
+def _ollama_generate(prompt: str, temperature: float = 0.2, timeout: int = 300) -> str | None:
+    if not _ollama_available():
+        return None
+
+    payload = json.dumps(
+        {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": temperature},
+        }
+    ).encode()
+
+    try:
+        req = urllib.request.Request(
+            f"{OLLAMA_URL}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read()).get("response", "").strip()
+    except Exception as e:
+        print("LLM Error:", e)
+        return None
+
+
+def llm_answer_general(query: str, conference: dict[str, Any] | None = None) -> str | None:
+    conference = conference or {}
+    conference_name = conference.get("name") or "the imported conference dataset"
+    conference_desc = conference.get("description") or ""
+    prompt = (
+        "You are a concise assistant inside a conference matching app.\n"
+        f"The app can search attendees and event sessions from {conference_name}.\n"
+        f"Dataset context: {conference_desc}\n\n"
+        f'User question: "{query}"\n\n'
+        "Answer the user directly in 2-4 short sentences. "
+        "If the question is general knowledge, answer it normally. "
+        "If useful, mention that you can also search the imported attendee and event data."
+    )
+    return _ollama_generate(prompt, temperature=0.3, timeout=120)
+
+
 def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Use llama3 to rerank matches and add a natural language explanation to each result."""
-    if not matches or not _ollama_available():
+    if not matches:
         return matches
 
     top = matches[:5]
@@ -37,22 +80,10 @@ def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[di
         f"Example: [{{ \"rank\": 1, \"reason\": \"...\" }}]"
     )
 
-    payload = json.dumps({
-        "model": OLLAMA_MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.2},
-    }).encode()
-
     try:
-        req = urllib.request.Request(
-            f"{OLLAMA_URL}/api/generate",
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            raw = json.loads(resp.read()).get("response", "").strip()
+        raw = _ollama_generate(prompt, temperature=0.2, timeout=300)
+        if not raw:
+            return matches
         # extract JSON array from response
         start = raw.find("[")
         end = raw.rfind("]") + 1

@@ -41,79 +41,27 @@ function addMessage(kind, innerHtml) {
   return article;
 }
 
-function detectGoals(question) {
-  const text = question.toLowerCase();
-  if (text.includes("session") || text.includes("event") || text.includes("schedule")) {
-    return { looking_for: ["sessions"], target_roles: ["session"] };
-  }
-  if (
-    text.includes("attendee") ||
-    text.includes("people") ||
-    text.includes("person") ||
-    text.includes("who") ||
-    text.includes("peer")
-  ) {
-    return { looking_for: ["peers"], target_roles: ["participant"] };
-  }
-  return { looking_for: ["sessions", "peers"], target_roles: ["session", "participant"] };
-}
-
-function detectSectors(question) {
-  const text = question.toLowerCase();
-  const sectors = [];
-  const checks = [
-    ["health tech", "healthcare"],
-    ["health tech", "artificial intelligence"],
-    ["healthtech", "healthcare"],
-    ["medtech", "healthcare"],
-    ["biotech", "healthcare"],
-    ["ai", "artificial intelligence"],
-    ["machine learning", "artificial intelligence"],
-    ["health", "healthcare"],
-    ["medical", "healthcare"],
-    ["climate", "climate"],
-    ["sustainability", "climate"],
-    ["community", "community"],
-    ["network", "community"],
-    ["customer", "customer discovery"],
-    ["startup", "entrepreneurship"],
-    ["founder", "entrepreneurship"],
-    ["invest", "fundraising"]
-  ];
-  checks.forEach(([needle, sector]) => {
-    if (text.includes(needle)) {
-      sectors.push(sector);
-    }
-  });
-  return [...new Set(sectors)];
-}
-
 function buildRequest(question) {
-  const inferred = detectGoals(question);
   return {
-    role: "participant",
-    stage: "all",
-    looking_for: inferred.looking_for,
-    target_roles: inferred.target_roles,
-    sectors: detectSectors(question),
-    asks: question,
-    notes: question
+    query: question
   };
 }
 
 function renderMatches(question, payload) {
   const matches = payload.matches || [];
+  const assistantText = payload.assistant_text || "";
+
   if (!matches.length) {
     return `
       <p class="message-title">Blockie AI</p>
-      <p>No relevant matches were found for “${escapeHtml(question)}”. Try a simpler topic or mention a known event theme.</p>
+      <p>${escapeHtml(assistantText || `No relevant matches were found for “${question}”. Try a simpler topic or mention a known event theme.`)}</p>
     `;
   }
 
   const topMatches = matches.slice(0, 4);
   return `
     <p class="message-title">Blockie AI</p>
-    <p>Here are the strongest matches I found for “${escapeHtml(question)}”.</p>
+    <p>${escapeHtml(assistantText || `Here are the strongest matches I found for “${question}”.`)}</p>
     <div class="result-stack">
       ${topMatches
         .map(
