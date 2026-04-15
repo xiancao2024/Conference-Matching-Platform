@@ -13,6 +13,21 @@ from .ontology import CANONICAL_ROLE_ALIASES, PHRASE_TO_CONCEPT, STOPWORDS, TOKE
 
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9][a-z0-9\-]+")
+LOW_SIGNAL_MATCH_TOKENS = {
+    "attendee",
+    "attendees",
+    "conference",
+    "connected",
+    "event",
+    "events",
+    "find",
+    "meet",
+    "people",
+    "person",
+    "session",
+    "sessions",
+    "show",
+}
 
 ROLE_COMPATIBILITY = {
     "founder": {
@@ -167,6 +182,8 @@ def _normalize_list(values: Any) -> list[str]:
 
 def _normalize_stage_label(value: str) -> str:
     lowered = value.lower().strip()
+    if lowered == "all":
+        return ""
     if lowered in {"pre seed", "pre-seed", "preseed"}:
         return "pre-seed"
     if lowered in {"seriesa", "series a"}:
@@ -203,8 +220,18 @@ def _canonical_overlap(left: list[str], right: list[str]) -> list[str]:
     for value in right:
         right_concepts.update(_extract_concepts(value))
         right_concepts.update(_tokenize(value))
-    overlap = left_concepts & right_concepts
+    overlap = {token for token in (left_concepts & right_concepts) if token not in LOW_SIGNAL_MATCH_TOKENS}
     return sorted(overlap)
+
+
+def _dedupe_preserve_order(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        if value not in seen:
+            seen.add(value)
+            ordered.append(value)
+    return ordered
 
 
 def _adjacent_stages(query_stage: str) -> set[str]:
@@ -361,7 +388,7 @@ class ConferenceMatcher:
             query.get("headline", ""),
             query.get("q", ""),
         ]))
-        inferred_sectors = _normalize_list(query.get("sectors")) + _extract_concepts(free_text)
+        inferred_sectors = _dedupe_preserve_order(_normalize_list(query.get("sectors")) + _extract_concepts(free_text))
         normalized_query = {
             "conference_id": query.get("conference_id", self.metadata["id"]),
             "role": _normalize_role(query.get("role", "participant")),
@@ -441,6 +468,7 @@ class ConferenceMatcher:
             "stage_fit": 0.0,
             "ask_offer_fit": 0.0,
             "intent_fit": 0.0,
+            "topic_penalty": 0.0,
         }
 
         entity_role = _normalize_role(entity.get("role", "participant"))
@@ -454,7 +482,7 @@ class ConferenceMatcher:
         if sector_overlap:
             boosts["sector_fit"] = min(0.18, 0.06 * len(sector_overlap))
 
-        query_stage = query.get("stage", "")
+        query_stage = _normalize_stage_label(query.get("stage", ""))
         entity_stages = {_normalize_stage_label(stage) for stage in entity.get("stage", [])}
         if query_stage and query_stage in entity_stages:
             boosts["stage_fit"] = 0.09
@@ -474,6 +502,13 @@ class ConferenceMatcher:
             if entity.get("entity_type") == "resource" and {"sessions", "warm introductions", "pilot partners"} & looking_for:
                 boosts["intent_fit"] += 0.06
         boosts["intent_fit"] = min(boosts["intent_fit"], 0.18)
+
+        query_sectors = query.get("sectors", [])
+        has_explicit_topic = bool(query_sectors)
+        if has_explicit_topic and not sector_overlap:
+            topical_text_overlap = _canonical_overlap(query.get("asks", []) + query.get("notes", []), entity.get("tags", []) + entity.get("sectors", []))
+            if not topical_text_overlap:
+                boosts["topic_penalty"] = -0.18
 
         for value in boosts.values():
             score += value
