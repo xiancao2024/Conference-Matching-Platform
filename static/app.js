@@ -140,7 +140,7 @@ function extractEventMeta(name, bio) {
   return { level, type, attendeeCount, adjectives };
 }
 
-function buildCardContent(match) {
+function buildCardContent(match, index) {
   const role = match.role;
   const sectors = (match.sectors || []).slice(0, 2);
   const topSector = sectors[0] || "this topic";
@@ -148,23 +148,23 @@ function buildCardContent(match) {
   if (role === "session" || match.entity_type === "resource") {
     const meta = extractEventMeta(match.name || "", match.bio || "");
     
-    // 1. Decision signal (the new Why)
-    let why = "Best if you want practical, hands-on experience";
+    // 1. Shorter decision signal
+    let why = `Best if you want hands-on experience`;
     if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
-      why = `Best for: professionals interested in ${topSector} business impact`;
+      why = `Best for: ${topSector} + business impact`;
     else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("reactive") || meta.adjectives.includes("real-time"))
-      why = `Best for: backend / systems engineers working on ${topSector}`;
+      why = `Best for: backend / systems engineers`;
     else if (meta.adjectives.includes("enterprise") || meta.adjectives.includes("global"))
-      why = `Best for: leaders dealing with enterprise-scale ${topSector}`;
+      why = `Best for: enterprise leaders`;
     else if (meta.type && meta.type.startsWith("Workshop"))
-      why = `Best if you want interactive, hands-on ${topSector} training`;
+      why = `Best for: practical, hands-on learning`;
     else
-      why = `Best for: attendees exploring ${topSector} concepts`;
+      why = `Best for: exploring ${topSector}`;
 
-    // 2. Value preview (What you'll get)
+    // 2. Value preview
     const bullets = [];
     if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
-      bullets.push("How companies use this tech to drive revenue", "Real-world strategic case studies");
+      bullets.push("How companies use AI to drive revenue", "Real-world strategic case studies");
     else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("real-time"))
       bullets.push("Real-time system design patterns", "Handling demand-driven workloads");
     else if (meta.type && meta.type.startsWith("Workshop"))
@@ -172,32 +172,45 @@ function buildCardContent(match) {
     else
       bullets.push(`Core insights on ${topSector}`, "Industry networking opportunities");
 
+    // 3. Action Hint
+    let actionHint = "";
+    if (index === 0) actionHint = "⭐ Good pick if you only attend one session";
+    else if (meta.type && meta.type.startsWith("Workshop")) actionHint = "👉 Worth attending if you want hands-on practice";
+    else actionHint = "👉 Add to your schedule for broad exposure";
+
     const badges = [];
     if (meta.level)        badges.push(`📊 ${meta.level}`);
     if (meta.type)         badges.push(`🎤 ${meta.type.replace(/ .$/, "")}`);
     if (meta.attendeeCount && meta.attendeeCount >= 500)
       badges.push(`🔥 ${meta.attendeeCount.toLocaleString()} attendees`);
 
-    return { why, bullets, limitBullets: true, badges };
+    return { why, bullets, actionHint, badges };
   } else {
-    // People card - Actionable networking
+    // People card
     const org = match.organization && match.organization !== "Example" ? match.organization : null;
     const why = org
-      ? `Works on ${topSector} (similar interest) at ${org}`
-      : `Attending the same ${topSector} sessions as you`;
+      ? `Works on ${topSector} at ${org}`
+      : `Attending similar ${topSector} sessions`;
       
+    let eventContext = `Great to discuss real developments in ${topSector}`;
+    if (match.bio && match.bio.includes("registered for")) {
+      eventContext = `🤝 Also attending sessions related to your search`;
+    }
+
     const bullets = [
-      `Good person to discuss ${topSector} applications`,
-      `Expand your network in the ${topSector} space`
+      eventContext,
+      `Potential peer for technical or strategic discussions`
     ];
-    return { why, bullets, limitBullets: true, badges: [] };
+    
+    const actionHint = "👉 Good person to reach out to for networking";
+    return { why, bullets, actionHint, badges: [] };
   }
 }
 
 function renderCard(match, index) {
   const confidence = scoreLabel(match.score);
   if (!confidence) return "";
-  const { why, bullets, badges } = buildCardContent(match);
+  const { why, bullets, actionHint, badges } = buildCardContent(match, index);
   const tags = (match.sectors || []).slice(0, 3);
   return `
     <article class="result-item">
@@ -205,8 +218,9 @@ function renderCard(match, index) {
       <p class="result-meta-line">📍 ${escapeHtml(match.organization || "")} · <span class="role-badge">${escapeHtml(match.role)}</span></p>
       ${tags.length ? `<div class="result-meta">${tags.map(s => `<span class="mini-pill">🏷 ${escapeHtml(s)}</span>`).join("")}</div>` : ""}
       ${badges.length ? `<div class="result-badges">${badges.map(b => `<span class="meta-badge">${escapeHtml(b)}</span>`).join("")}</div>` : ""}
-      <p class="result-summary ${confidence.cls}">${confidence.icon} ${escapeHtml(why)}</p>
+      <p class="result-summary ${confidence.cls}">🎯 ${escapeHtml(why)}</p>
       ${bullets.length ? `<ul class="result-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
+      ${actionHint ? `<p class="result-action-hint">${escapeHtml(actionHint)}</p>` : ""}
     </article>
   `;
 }

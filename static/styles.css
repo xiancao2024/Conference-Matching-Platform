@@ -503,3 +503,12 @@ body {
 .result-bullets li::marker {
   content: "💡 ";
 }
+
+.result-action-hint {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4f6ef7;
+}
