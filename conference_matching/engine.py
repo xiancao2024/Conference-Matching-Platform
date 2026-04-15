@@ -234,6 +234,21 @@ def _dedupe_preserve_order(values: list[str]) -> list[str]:
     return ordered
 
 
+def _topic_evidence(query: dict[str, Any], entity: dict[str, Any]) -> list[str]:
+    query_topics = _normalize_list(query.get("sectors"))
+    if not query_topics:
+        return []
+    entity_texts = (
+        entity.get("sectors", [])
+        + entity.get("tags", [])
+        + entity.get("source_events", [])
+        + _normalize_list(entity.get("bio", ""))
+        + _normalize_list(entity.get("title", ""))
+        + _normalize_list(entity.get("organization", ""))
+    )
+    return _canonical_overlap(query_topics, entity_texts)
+
+
 def _adjacent_stages(query_stage: str) -> set[str]:
     if query_stage == "pre-seed":
         return {"pre-seed", "seed"}
@@ -377,7 +392,7 @@ class ConferenceMatcher:
         ranked = []
         for indexed in self.entities:
             score = _cosine_similarity(query_vector, indexed.lexical_vector)
-            ranked.append(self._result_payload(indexed, score, "keyword", {}, query))
+            ranked.append(self._result_payload(indexed, score, "keyword", {}, query, _topic_evidence(query, indexed.entity)))
         ranked.sort(key=lambda item: item["score"], reverse=True)
         return ranked[:limit]
 
@@ -436,6 +451,7 @@ class ConferenceMatcher:
 
         ranked = []
         for idx, indexed in pool:
+            topic_evidence = _topic_evidence(normalized_query, indexed.entity)
             breakdown = self._structured_score(normalized_query, indexed.entity)
             lexical_score = _cosine_similarity(query_lexical, indexed.lexical_vector)
             semantic_score = _cosine_similarity(query_semantic, indexed.concept_vector)
@@ -449,7 +465,13 @@ class ConferenceMatcher:
             breakdown["lexical"] = round(lexical_score, 4)
             breakdown["semantic"] = round(semantic_score, 4)
             breakdown["embedding"] = round(embedding_score, 4)
-            ranked.append(self._result_payload(indexed, total, "hybrid", breakdown, normalized_query))
+            ranked.append(self._result_payload(indexed, total, "hybrid", breakdown, normalized_query, topic_evidence))
+
+        explicit_topics = bool(normalized_query.get("sectors"))
+        target_roles = {_normalize_role(role) for role in normalized_query.get("target_roles", [])}
+        people_search = bool(target_roles & {"participant", "founder", "mentor", "investor"})
+        if explicit_topics and people_search:
+            ranked = [item for item in ranked if item.get("topic_evidence")]
 
         ranked.sort(key=lambda item: item["score"], reverse=True)
         keyword = self.keyword_search(normalized_query, limit=limit)
@@ -506,10 +528,7 @@ class ConferenceMatcher:
         query_sectors = query.get("sectors", [])
         has_explicit_topic = bool(query_sectors)
         if has_explicit_topic and not sector_overlap:
-            topical_text_overlap = _canonical_overlap(
-                query.get("asks", []) + _normalize_list(query.get("notes", [])),
-                entity.get("tags", []) + entity.get("sectors", []),
-            )
+            topical_text_overlap = _topic_evidence(query, entity)
             if not topical_text_overlap:
                 boosts["topic_penalty"] = -0.18
 
@@ -525,6 +544,7 @@ class ConferenceMatcher:
         mode: str,
         breakdown: dict[str, float],
         query: dict[str, Any],
+        topic_evidence: list[str],
     ) -> dict[str, Any]:
         entity = indexed.entity
         payload = {
@@ -543,6 +563,7 @@ class ConferenceMatcher:
             "score": round(score, 4),
             "mode": mode,
             "score_breakdown": breakdown,
+            "topic_evidence": topic_evidence,
             "explanation": self._explain(entity, query, breakdown),
         }
         return payload
