@@ -101,36 +101,61 @@ function buildRequest(question) {
   };
 }
 
+function isPositiveReason(reason) {
+  if (!reason) return false;
+  const low = reason.toLowerCase();
+  const negWords = ["not relevant", "irrelevant", "unrelated", "no match", "does not match", "not a match", "not directly", "not related"];
+  return !negWords.some(w => low.includes(w));
+}
+
+function renderGroup(title, icon, items) {
+  if (!items.length) return "";
+  return `
+    <div class="result-group">
+      <p class="result-group-title">${icon} ${escapeHtml(title)} (${items.length})</p>
+      ${items.map((match, index) => {
+        const positiveReason = isPositiveReason(match.llm_reason) ? match.llm_reason : null;
+        const shortExplanation = positiveReason
+          || (match.explanation && match.explanation[0])
+          || "Matches your search.";
+        const detailId = `detail-${match.id || index}-${Math.random().toString(36).slice(2)}`;
+        return `
+          <article class="result-item">
+            <h3>#${index + 1} ${escapeHtml(match.name)}</h3>
+            <p class="result-meta-line">📍 ${escapeHtml(match.organization)} · <span class="role-badge">${escapeHtml(match.role)}</span></p>
+            <div class="result-meta">
+              ${(match.sectors || []).slice(0, 3).map(s => `<span class="mini-pill">${escapeHtml(s)}</span>`).join("")}
+            </div>
+            <p class="result-summary">✅ ${escapeHtml(shortExplanation)}</p>
+            ${match.llm_reason ? `
+              <details class="llm-details">
+                <summary class="llm-toggle">🤖 Why this result?</summary>
+                <p class="llm-reason-text">${escapeHtml(match.llm_reason)}</p>
+              </details>` : ""}
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
 function renderMatches(question, payload) {
   const matches = payload.matches || [];
   if (!matches.length) {
     return `
       <p class="message-title">Blockie AI</p>
-      <p>No relevant matches were found for “${escapeHtml(question)}”. Try a simpler topic or mention a known event theme.</p>
+      <p>No relevant matches were found for "${escapeHtml(question)}". Try a simpler topic or mention a known event theme.</p>
     `;
   }
 
-  const topMatches = matches.slice(0, 4);
+  const sessions = matches.filter(m => m.entity_type === "resource" || m.role === "session").slice(0, 3);
+  const people  = matches.filter(m => m.entity_type === "person"   || m.role === "participant").slice(0, 2);
+
   return `
     <p class="message-title">Blockie AI</p>
-    <p>Here are the strongest matches I found for “${escapeHtml(question)}”.</p>
-    <div class="result-stack">
-      ${topMatches
-        .map(
-          (match, index) => `
-            <article class="result-item">
-              <h3>#${index + 1} ${escapeHtml(match.name)}</h3>
-              <p>${escapeHtml(match.title)} at ${escapeHtml(match.organization)} · ${escapeHtml(match.role)}</p>
-              <div class="result-meta">
-                ${(match.sectors || []).slice(0, 2).map((sector) => `<span class="mini-pill">${escapeHtml(sector)}</span>`).join("")}
-              </div>
-              <p>${escapeHtml((match.explanation && match.explanation[0]) || match.bio || "")}</p>
-              ${match.llm_reason ? `<p class="llm-reason"><span class="llm-badge">&#x1F916; llama3</span> ${escapeHtml(match.llm_reason)}</p>` : ""}
-            </article>
-          `
-        )
-        .join("")}
-    </div>
+    <p>Here are the strongest matches for "<strong>${escapeHtml(question)}</strong>".</p>
+    ${renderGroup("Sessions & Events", "🎯", sessions)}
+    ${renderGroup("Related People", "👥", people)}
   `;
 }
 

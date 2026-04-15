@@ -390,18 +390,68 @@ body {
   }
 }
 
-.llm-reason {
+.result-group {
+  margin-top: 14px;
+}
+
+.result-group-title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.result-stack,
+.result-group {
+  display: grid;
+  gap: 10px;
+}
+
+.result-meta-line {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.result-summary {
+  margin-top: 6px !important;
+  font-size: 0.9rem;
+  color: #2d6a4f !important;
+  font-weight: 500;
+}
+
+.llm-details {
+  margin-top: 6px;
+}
+
+.llm-toggle {
+  font-size: 0.82rem;
+  color: #4f6ef7;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.llm-reason-text {
+  margin: 6px 0 0 !important;
+  font-size: 0.85rem;
+  color: #3a3a5c !important;
   background: #f0f4ff;
   border-left: 3px solid #4f6ef7;
   border-radius: 4px;
   padding: 6px 10px;
-  margin-top: 6px;
-  font-size: 0.88rem;
   line-height: 1.5;
-  color: #1a1a2e;
-}
-.llm-badge {
-  font-weight: 600;
-  color: #4f6ef7;
-  margin-right: 4px;
 }
