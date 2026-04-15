@@ -147,42 +147,50 @@ function buildCardContent(match) {
 
   if (role === "session" || match.entity_type === "resource") {
     const meta = extractEventMeta(match.name || "", match.bio || "");
-    const adj = meta.adjectives[0] ? meta.adjectives[0].replace(/-/g, " ") : null;
+    
+    // 1. Decision signal (the new Why)
+    let why = "Best if you want practical, hands-on experience";
+    if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
+      why = `Best for: professionals interested in ${topSector} business impact`;
+    else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("reactive") || meta.adjectives.includes("real-time"))
+      why = `Best for: backend / systems engineers working on ${topSector}`;
+    else if (meta.adjectives.includes("enterprise") || meta.adjectives.includes("global"))
+      why = `Best for: leaders dealing with enterprise-scale ${topSector}`;
+    else if (meta.type && meta.type.startsWith("Workshop"))
+      why = `Best if you want interactive, hands-on ${topSector} training`;
+    else
+      why = `Best for: attendees exploring ${topSector} concepts`;
 
-    const why = adj
-      ? `Covers ${adj} applications in ${topSector}`
-      : sectors.length ? `Deep dive into ${sectors.join(" & ")}` : "Matches your query";
-
+    // 2. Value preview (What you'll get)
     const bullets = [];
     if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
-      bullets.push(`How to apply ${topSector} for measurable business outcomes`);
-    if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("reactive") || meta.adjectives.includes("real-time"))
-      bullets.push("Real-time and demand-driven system design patterns");
-    if (meta.type && meta.type.startsWith("Workshop"))
-      bullets.push("Hands-on exercises and practical takeaways");
-    if (meta.adjectives.includes("enterprise") || meta.adjectives.includes("global"))
-      bullets.push("Enterprise-scale case studies and strategies");
-    if (!bullets.length && topSector)
-      bullets.push(`Practical coverage of ${topSector}`);
+      bullets.push("How companies use this tech to drive revenue", "Real-world strategic case studies");
+    else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("real-time"))
+      bullets.push("Real-time system design patterns", "Handling demand-driven workloads");
+    else if (meta.type && meta.type.startsWith("Workshop"))
+      bullets.push("Step-by-step practical implementation", "Interactive problem solving");
+    else
+      bullets.push(`Core insights on ${topSector}`, "Industry networking opportunities");
 
     const badges = [];
     if (meta.level)        badges.push(`📊 ${meta.level}`);
-    if (meta.type)         badges.push(`🎯 ${meta.type}`);
+    if (meta.type)         badges.push(`🎤 ${meta.type.replace(/ .$/, "")}`);
     if (meta.attendeeCount && meta.attendeeCount >= 500)
       badges.push(`🔥 ${meta.attendeeCount.toLocaleString()} attendees`);
 
-    return { why, bullets, badges };
+    return { why, bullets, limitBullets: true, badges };
   } else {
-    // People card
+    // People card - Actionable networking
     const org = match.organization && match.organization !== "Example" ? match.organization : null;
     const why = org
-      ? `Active in ${topSector} — works at ${org}`
-      : sectors.length ? `Active in ${sectors.join(" & ")} events` : "Attended similar sessions";
+      ? `Works on ${topSector} (similar interest) at ${org}`
+      : `Attending the same ${topSector} sessions as you`;
+      
     const bullets = [
-      `Attended ${topSector} conference sessions`,
-      "Potential peer to connect with at the event"
+      `Good person to discuss ${topSector} applications`,
+      `Expand your network in the ${topSector} space`
     ];
-    return { why, bullets, badges: [] };
+    return { why, bullets, limitBullets: true, badges: [] };
   }
 }
 
