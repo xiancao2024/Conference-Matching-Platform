@@ -506,7 +506,10 @@ class ConferenceMatcher:
         query_sectors = query.get("sectors", [])
         has_explicit_topic = bool(query_sectors)
         if has_explicit_topic and not sector_overlap:
-            topical_text_overlap = _canonical_overlap(query.get("asks", []) + query.get("notes", []), entity.get("tags", []) + entity.get("sectors", []))
+            topical_text_overlap = _canonical_overlap(
+                query.get("asks", []) + _normalize_list(query.get("notes", [])),
+                entity.get("tags", []) + entity.get("sectors", []),
+            )
             if not topical_text_overlap:
                 boosts["topic_penalty"] = -0.18
 
