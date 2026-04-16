@@ -1,123 +1,74 @@
-\documentclass[11pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{geometry}
-\usepackage{hyperref}
-\usepackage{booktabs}
-\usepackage{array}
-\usepackage{graphicx}
-\geometry{margin=1in}
+\documentclass[paper=a4, fontsize=11pt]{scrartcl}
 
-\title{CS 6120 Final Project Report\\GTC Networking Copilot: Retrieval-Augmented Matching with Local LLM Explanations}
-\author{Xian Cao, Xueming Tang, Chenyang Li}
-\date{}
+\newcommand{\assignment}{CS 6120 Final Project Report --- GTC Networking Copilot (Retrieval-Augmented Matching)}
+\newcommand{\duedate}{April 16, 2026}
+\input{include/hw-template.tex}
+
+\author{%
+  \textbf{Xian Cao, Xueming Tang, Chenyang Li} \\
+  \href{https://github.com/xiancao2024/Conference-Matching-Platform}{GitHub repository} (contact e-mails on submission cover sheet as required)
+}
 
 \begin{document}
+
 \maketitle
 
-\noindent\textbf{Repository}: \url{https://github.com/xiancao2024/Conference-Matching-Platform}
+\noindent\textbf{Repository:} \url{https://github.com/xiancao2024/Conference-Matching-Platform}
 
-\section*{Abstract}
+\section{Proposed Objective}
 
-Large conferences make it difficult to turn informal networking goals into concrete introductions. This project implements a \textbf{retrieval-augmented} attendee matching system: a hybrid retriever ranks people from a \textbf{10k+ row} GTC-style profile table, then a \textbf{locally served} LLM (Ollama) generates short ``why connect'' text conditioned on \textbf{retrieved profile fields}, reducing unconstrained hallucination relative to pure chat.
+Build a \textbf{retrieval-augmented} system that helps NVIDIA GTC-style attendees answer \emph{who should I meet?} over a large roster: \textbf{retrieve} top attendee profiles with hybrid search, then \textbf{generate} short connection rationales using a \textbf{local LLM} conditioned only on retrieved fields, so the model does not rely on parametric knowledge of private attendees.
 
-\section{Course alignment (RAG)}
+\section{Background and Motivation}
 
-The course frames \textbf{Retrieval Augmented Generation (RAG)} as pairing an LLM with external data. Our system implements that pattern at the application layer:
+\subsection*{Heilmeier-style framing}
 
-\begin{itemize}
-\item \textbf{External data / database:} normalized attendee records (\texttt{data/conference\_gtc.json}); dense vectors (\texttt{data/embeddings.npy}); FAISS index (\texttt{data/faiss.index}).
-\item \textbf{Scale ($\geq$ 10k entries):} synthetic wide CSV from \texttt{scripts/generate\_gtc\_wide\_csv.py} (e.g.\ 10{,}000 rows) imported via \texttt{conference\_matching.gtc\_import}.
-\item \textbf{Local LLMs:} Ollama on the same host or VM; no cloud LLM API in the default path.
-\item \textbf{Front end:} browser UI (\texttt{static/}) with HTTP API (the assignment mentions Streamlit; we ship HTML/JS, which satisfies a user-facing interface).
-\item \textbf{Verifiable grounding:} top matches expose structured fields (bio, interests, \texttt{source\_events}) passed into the LLM prompt; retrieval is deterministic without the LLM.
-\end{itemize}
+We follow the \href{https://www.darpa.mil/work-with-us/heilmeier-catechism}{Heilmeier Catechism} as a skeptical-audience check. \textbf{What are we trying to do?} Turn informal networking goals into ranked, explainable introductions. \textbf{How is it done today?} Spreadsheets, hallway luck, or generic chatbots without a grounded attendee index. \textbf{What is new?} Hybrid retrieval over 10k+ structured profiles plus \textbf{grounded} local-LLM explanations (not inventing people). \textbf{Who cares?} Attendees and organizers. \textbf{Risks?} Synthetic data is not real registration; CPU LLM latency; explanations must cite retrieved text only.
 
-\noindent\textbf{Note on ``citations.''} Document-centric RAG often cites article passages. Our domain is structured profiles: verifiability comes from \textbf{grounding explanations in the same retrieved fields} shown in the UI. Future work can add row IDs or organizer portal links.
+\subsection*{Impact}
 
-\section{Heilmeier Catechism}
+Conference ROI is often capped by \textbf{search friction}. A deployable roster + retrieval + grounded generation path is a scalable alternative to fine-tuning on private data.
 
-\begin{enumerate}
-\item \textbf{Goal:} Help attendees answer ``who should I meet?'' from natural language over a large roster.
-\item \textbf{Status quo:} spreadsheets, ad-hoc search, or generic chatbots without a grounded attendee index.
-\item \textbf{What's new:} hybrid retrieval plus local LLM explanations conditioned on retrieved profiles---not inventing attendees.
-\item \textbf{Stakeholders:} participants and organizers who want actionable intros without fine-tuning on private data.
-\item \textbf{Risks:} synthetic data is not real registration; CPU LLM latency; explanations must stay tied to retrieved text.
-\end{enumerate}
+\subsection*{Related work (brief)}
 
-\section{Motivation and impact}
+Hybrid retrieval (sparse lexical signals + dense embeddings + rules) is standard in search and modern \textbf{RAG} systems \cite{lewis2020retrieval}. We adapt the same \emph{retrieve then generate} pattern: retrieve \textbf{entities} (attendees), then generate one-line reasons from \textbf{field bundles} passed to the LLM.
 
-Conference ROI is often limited by search friction. A future iteration with organizer-approved data could power on-site networking with auditable provenance.
+\subsection*{Data source, access, and statistics}
 
-\section{Background and related work}
+\textbf{Primary artifact:} wide-row CSV (\(\geq 10{,}000\) rows for scale), one row per attendee: name, e-mail, education, major, job title, experience, interests, registered GTC-style agenda titles, bio/snippet.
 
-Hybrid retrieval (sparse + dense + rules) is standard in search and RAG. Local inference (Ollama) satisfies on-metal or GCP deployment without third-party APIs.
-
-\section{System architecture}
-
-\textit{Data flow:} CSV $\rightarrow$ normalized JSON $\rightarrow$ optional MiniLM embeddings $\rightarrow$ FAISS index. \textit{Query flow:} browser $\rightarrow$ \texttt{POST /api/match} $\rightarrow$ hybrid ranker $\rightarrow$ top-$k$ profiles $\rightarrow$ optional Ollama \texttt{llm\_reason} from retrieved fields $\rightarrow$ UI.
-
+\textbf{How to obtain / reproduce:} generate locally at no API cost:
 \begin{verbatim}
-[Browser] --POST /api/match--> [Hybrid matcher: lexical + concepts +
-  structured + FAISS/MiniLM] --> [Top-k attendee records]
-       --> [Ollama: explain using retrieved profile text only] --> [UI]
+python3 scripts/generate_gtc_wide_csv.py --rows 10000 \
+  -o data/gtc_generated_10k.csv
+python3 -m conference_matching.gtc_import \
+  --input data/gtc_generated_10k.csv -o data/conference_gtc.json
 \end{verbatim}
+\noindent The repository documents the schema; real organizer CSVs can use the same column aliases.
 
-\section{Modeling methodology and robustness}
+\textbf{Statistics:} \(N \approx 10^4\) attendees; each row carries multi-field text (interests + agenda pipe-list + bio). \textbf{Why retrieval is hard:} short noisy text, overlapping jargon (CUDA, LLMs), synonymy across agenda titles, and the need to rank \textbf{people} rather than duplicate session entities.
+
+\begin{thebibliography}{9}
+\bibitem{lewis2020retrieval}
+P. Lewis et al.,
+\textit{Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks}.
+NeurIPS, 2020.
+\end{thebibliography}
+
+\section{Proposed Approach / Implementation Details}
 
 \begin{itemize}
-\item \textbf{Knowledge cutoff:} roster lives in external files, not model weights.
-\item \textbf{Hallucinated people:} LLM only sees top-$k$ retrieved snippets.
-\item \textbf{Score diversity:} multiple signals reduce over-reliance on a single embedding cosine.
-\item \textbf{Separation of concerns:} retrieval is reproducible; generation is optional.
+  \item \textbf{Pre-processing:} CSV \(\rightarrow\) normalized JSON (\texttt{conference\_matching/gtc\_import}); normalize headers via aliases; split multi-value interest/agenda fields; synthesize searchable bio text per attendee.
+  \item \textbf{Retrieval algorithms:} hybrid scoring in \texttt{conference\_matching/engine.py}---lexical overlap, ontology concept expansion, structured boosts (role/intent/topic), optional dense similarity using \texttt{sentence-transformers/all-MiniLM-L6-v2} with FAISS \texttt{IndexFlatIP} on L2-normalized vectors (\texttt{data/embeddings.npy}, \texttt{data/faiss.index}).
+  \item \textbf{Noise remedies:} multi-signal fusion (not embedding-only); light tokenization; people-only intent so session titles do not become separate match rows; optional stricter topical filters for people-queries.
+  \item \textbf{Scale:} batch encoding (e.g.\ 256), cached embeddings, FAISS index reuse when entity count matches; Docker volume for \texttt{data/} on VMs.
+  \item \textbf{Design decisions (``chunking'' analogy):} attendees are atomic units; agenda text stays embedded in each profile (no arbitrary chunk overlap); query is flattened to searchable text for embedding.
+  \item \textbf{Validation / evaluation:} qualitative demo on 10k roster; latency checks on CPU VM; optional unit tests; compare hybrid vs.\ keyword behavior on representative queries; LLM outputs audited against retrieved fields (grounding).
+  \item \textbf{LLM:} \textbf{Ollama} locally (e.g.\ \texttt{llama3.2:1b} in the bundled Docker image) for \texttt{llm\_reason} re-rank/explanation; retrieval and ranking run without the LLM.
 \end{itemize}
 
-\section{Implementation}
+\section{Submission Guidelines}
 
-\begin{itemize}
-\item \texttt{conference\_matching/gtc\_import.py}: wide CSV $\rightarrow$ JSON
-\item \texttt{conference\_matching/engine.py}: hybrid scoring, FAISS, payloads
-\item \texttt{conference\_matching/llm.py}: Ollama explanations
-\item \texttt{conference\_matching/server.py}: API + static UI
-\item \texttt{Dockerfile}: containerized deployment
-\end{itemize}
-
-\section{Evaluation and analysis}
-
-First-time embedding build on CPU dominates startup for 10k profiles; caching avoids re-encoding. LLM quality is constrained by prompting with retrieved fields.
-
-\section{Limitations and future work}
-
-Synthetic data; add row-level provenance links; optional GPU for Ollama.
-
-\section{Team contributions}
-
-\begin{tabular}{@{}p{0.22\linewidth}p{0.72\linewidth}@{}}
-\toprule
-Member & Contributions (edit as needed) \\
-\midrule
-Xian Cao & Architecture, matching engine, evaluation hooks \\
-Xueming Tang & Data pipeline, Docker/VM, UI copy, documentation \\
-Chenyang Li & LLM integration, demo preparation \\
-\bottomrule
-\end{tabular}
-
-\section{Reproducibility}
-
-\textbf{GitHub:} \url{https://github.com/xiancao2024/Conference-Matching-Platform}
-
-\textbf{Example endpoint:} \url{http://34.169.130.58:8000} (update if VM IP changes)
-
-\begin{verbatim}
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python scripts/generate_gtc_wide_csv.py --rows 10000 \
-  --output data/gtc_generated_10k.csv
-.venv/bin/python -m conference_matching.gtc_import \
-  --input data/gtc_generated_10k.csv --output data/conference_gtc.json
-CONFERENCE_DATA_PATH=data/conference_gtc.json .venv/bin/python server.py
-\end{verbatim}
-
-\noindent Docker: see \texttt{README.md}.
+Submit the PDF to Gradescope as a \emph{single} team submission; list all members and LDAP/e-mails at the top of the document as required by the course. This write-up is kept near \textbf{two--three pages} when compiled. Container build/run: see \texttt{README.md} and \texttt{Dockerfile}.
 
 \end{document}
