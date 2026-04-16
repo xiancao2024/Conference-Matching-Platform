@@ -1,208 +1,168 @@
 # GatherBlock Conference Matching Platform
 
-This repository now runs on real imported attendance data only. The supported source is the Kaggle Event Attendance dataset:
+Did you actually network effectively at your last conference, or just attend sessions?
 
-- `cankatsrc/event-attendance-dataset`
-- https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset
+This app simulates a **GTC networking copilot**: you ask "who should I meet?" and it returns ranked attendee matches with clear reasons (interest fit, role fit, and activity overlap).
 
-The app normalizes that dataset into conference attendees and session/resource records, then runs a hybrid retrieval pipeline over those imported entities.
+The current product is optimized for a **single-conference, people-only** workflow (GTC-style profiles).
+
+Input is a **wide CSV with one row per attendee** (name, role/title, education, interests, agenda registrations, bio). The app normalizes that CSV into `data/conference_gtc.json`, then ranks attendees with a hybrid retrieval engine.
 
 ## What the project includes
 
-- A Kaggle attendance importer that reads a downloaded `.zip`, `.csv`, or extracted directory.
-- A normalized conference schema written to `data/conference_kaggle.json`.
-- A Python hybrid matching engine with lexical, semantic, and structured scoring.
-- A browser demo with guided queries over imported attendees and sessions.
-- A weak-label evaluation harness built from real attendance links.
-- Automated tests that exercise the real-data schema path.
-- A Docker image (CUDA + Ollama + app server) for GPU-friendly deployment.
+- GTC wide-row CSV generator for local testing (`scripts/generate_gtc_wide_csv.py`)
+- GTC profile importer (`conference_matching.gtc_import`)
+- Hybrid matcher (lexical + concept + optional embedding + structured boosts)
+- People-first web UI (activity overlap + rationale)
+- Optional Ollama one-line explanation (`llm_reason`) for top matches
+- Docker image for VM deployment
 
 ## Data flow
 
-1. Download the Kaggle dataset manually or through `kagglehub`.
-2. Normalize the raw attendance rows into the app schema.
-3. Start the local server.
-4. Query imported attendees and sessions through the web UI.
+1. Prepare a wide-row GTC CSV (real or synthetic).
+2. Import CSV into normalized JSON (`data/conference_gtc.json`).
+3. Start server / container.
+4. Ask natural-language "who should I meet" queries in the UI.
 
-Core loader: [data.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/data.py)  
-Importer entrypoint: [kaggle_import.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/kaggle_import.py)  
-Matcher: [engine.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/engine.py)
+## Prepare data
 
-## Import the real dataset
-
-If you downloaded the Kaggle zip manually:
+### Option A: Generate a local sample
 
 ```bash
-python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
+python3 scripts/generate_gtc_wide_csv.py --rows 50 --output data/gtc_local_sample.csv
+python3 -m conference_matching.gtc_import --input data/gtc_local_sample.csv --output data/conference_gtc.json
 ```
 
-If you already extracted the dataset:
+### Option B: Generate a larger dataset (e.g. 10k)
 
 ```bash
-python3 -m conference_matching.kaggle_import --input /path/to/extracted-folder
+python3 scripts/generate_gtc_wide_csv.py --rows 10000 --output data/gtc_generated_10k.csv
+python3 -m conference_matching.gtc_import --input data/gtc_generated_10k.csv --output data/conference_gtc.json
 ```
 
-If you want to use `kagglehub` directly:
+### Option C: Import your own wide-row CSV
 
 ```bash
-pip install kagglehub
-python3 -m conference_matching.kaggle_import
-```
-
-The importer writes the normalized JSON to `data/conference_kaggle.json` by default.
-
-If you prefer to write or use a different path, set `CONFERENCE_DATA_PATH` when running the server or any CLI that reads the dataset.
-
-Examples
-
-```bash
-# Import from a downloaded zip or extracted folder (writes data/conference_kaggle.json)
-python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
-
-# Import using the bundled default Kaggle id (requires kagglehub)
-pip install kagglehub
-python3 -m conference_matching.kaggle_import
-
-# Run the server using a specific normalized file
-CONFERENCE_DATA_PATH=/full/path/to/conference_kaggle.json python3 server.py
-```
-
-Quick inspection
-
-If `data/conference_kaggle.json` is present you can view basic counts quickly without opening the whole file:
-
-```bash
-# print conference event and attendee counts (run from repo root)
-python3 - <<'PY'
-import json
-with open('data/conference_kaggle.json', 'r', encoding='utf-8') as f:
-	o = json.load(f)
-conf = o.get('conference', {})
-print('events:', conf.get('event_count'))
-print('attendees:', conf.get('attendee_count'))
-PY
+python3 -m conference_matching.gtc_import --input /path/to/your_gtc_profiles.csv --output data/conference_gtc.json
 ```
 
 ## Run locally
 
-Start the demo server after importing the dataset:
-
 ```bash
-python3 server.py
+CONFERENCE_DATA_PATH=data/conference_gtc.json python3 server.py
 ```
 
-Then open:
-
-```text
-http://127.0.0.1:8000
-```
+Open: `http://127.0.0.1:8000`
 
 ## Run with Docker
 
-The repo includes a [`Dockerfile`](Dockerfile) that packages the app on **NVIDIA CUDA 12.2 / Ubuntu 22.04**, installs **Python 3.10**, dependencies from [`requirements.txt`](requirements.txt), **[Ollama](https://ollama.com/)** (with `zstd` so the install script succeeds), copies the project into `/app`, and sets:
+### Quick Docker run (most common path)
 
-- `PYTHONPATH=/app`
-- `CONFERENCE_DATA_PATH=/app/data/conference_kaggle.json`
+If you already have `data/conference_gtc.json`, run:
 
-The default command starts `ollama serve`, warms **`llama3.2:1b`** with a one-line prompt, then runs **`python3 server.py --host 0.0.0.0 --port 8000`** so the web UI and `/api/match` are reachable on port **8000** (optional LLM explanations in [`conference_matching/llm.py`](conference_matching/llm.py) when Ollama is up).
+```bash
+docker rm -f conference-matching 2>/dev/null || true
+docker build -t conference-matching .
+docker run -d --name conference-matching \
+  -p 8000:8000 \
+  -v "$HOME/Conference-Matching-Platform/data:/app/data" \
+  -e CONFERENCE_DATA_PATH=/app/data/conference_gtc.json \
+  conference-matching
+docker logs -f conference-matching
+```
 
-**Prerequisite:** build or run only after you have normalized data at `data/conference_kaggle.json` (see [Import the real dataset](#import-the-real-dataset)). The [`.dockerignore`](.dockerignore) excludes local `venv/`, `.git/`, `__pycache__/`, and optional `*.index` / `*.npy` embedding artifacts so images stay smaller; embeddings are optional and can be rebuilt at runtime if needed.
+Open: `http://127.0.0.1:8000` (or `http://<VM_EXTERNAL_IP>:8000` on a VM)
 
-Build and run:
+### Docker run, step by step
+
+Build image:
 
 ```bash
 docker build -t conference-matching .
+```
 
-docker run --rm -p 8000:8000 \
-  -v "$(pwd)/data/conference_kaggle.json:/app/data/conference_kaggle.json:ro" \
+Run container (recommended: mount full `data/` so embeddings can be reused):
+
+```bash
+docker rm -f conference-matching 2>/dev/null || true
+docker run -d --name conference-matching \
+  -p 8000:8000 \
+  -v "$HOME/Conference-Matching-Platform/data:/app/data" \
+  -e CONFERENCE_DATA_PATH=/app/data/conference_gtc.json \
   conference-matching
 ```
 
-Then open `http://127.0.0.1:8000`. On a Linux host with NVIDIA GPUs you can add `--gpus all` so Ollama can use the GPU; the image is CUDA-based and is aimed at that environment.
-
-For a remote VM such as GCP, bind the server externally:
+Watch logs:
 
 ```bash
-HOST=0.0.0.0 PORT=8000 python3 server.py
+docker logs -f conference-matching
 ```
 
-Or use the helper script:
+Stop/remove:
 
 ```bash
-./scripts/gcp_start.sh
+docker rm -f conference-matching
 ```
 
-If you want to point the app at a specific normalized JSON instead of `data/conference_kaggle.json`:
+## Embedding behavior (important)
+
+- Embeddings are saved as:
+  - `data/embeddings.npy`
+  - `data/faiss.index`
+- On restart, the app **reuses embeddings** if row count matches current entities.
+- Re-embedding happens only if:
+  - files are missing/corrupted, or
+  - dataset size changes.
+- Do **not** delete `embeddings.npy` / `faiss.index` if you want fast restarts.
+
+Useful env vars:
+
+- `CONFERENCE_EMBED_MAX_ENTITIES` (default `20000`): upper bound for on-the-fly embedding.
+- `CONFERENCE_EMBED_SHOW_PROGRESS` (default `1`): show progress bar for large builds.
+
+If you never want runtime embedding fallback, set:
 
 ```bash
-CONFERENCE_DATA_PATH=/full/path/to/conference_kaggle.json python3 server.py
+-e CONFERENCE_EMBED_MAX_ENTITIES=0
 ```
 
-### Deploy on a VM
+## VM deployment checklist
 
-1. Create a virtual environment and install `kagglehub` if you want the VM to download the dataset directly.
-2. Import the dataset.
-3. Start the app on `0.0.0.0`.
-4. Open the VM firewall for the app port, or use SSH port forwarding.
+1. Pull latest code on VM.
+2. Ensure `data/conference_gtc.json` exists.
+3. Build and run container with mounted `data/`.
+4. Open firewall for TCP `8000`.
+5. Access via `http://<VM_EXTERNAL_IP>:8000` (HTTP, not HTTPS).
 
-Example commands on the VM:
+Quick restart commands on VM:
 
 ```bash
 cd ~/Conference-Matching-Platform
-python3 -m venv .venv
-.venv/bin/python -m pip install kagglehub
-.venv/bin/python -m conference_matching.kaggle_import
-HOST=0.0.0.0 PORT=8000 .venv/bin/python server.py
+git pull origin main
+docker rm -f conference-matching 2>/dev/null || true
+docker build -t conference-matching .
+docker run -d --name conference-matching \
+  -p 8000:8000 \
+  -v "$HOME/Conference-Matching-Platform/data:/app/data" \
+  -e CONFERENCE_DATA_PATH=/app/data/conference_gtc.json \
+  conference-matching
+docker logs -f conference-matching
 ```
 
-If you already imported the dataset locally and copied `data/conference_kaggle.json` to the VM, you can skip the Kaggle download and just run:
+## UI behavior updates
 
-```bash
-HOST=0.0.0.0 PORT=8000 CONFERENCE_DATA_PATH=/full/path/to/conference_kaggle.json .venv/bin/python server.py
-```
-
-To reach the app from your laptop, either:
-
-- open a GCP firewall rule for TCP `8000`, then visit `http://VM_EXTERNAL_IP:8000`
-- or use SSH port forwarding and keep the app private:
-
-```bash
-gcloud compute ssh YOUR_INSTANCE_NAME --zone YOUR_ZONE -- -L 8000:localhost:8000
-```
-
-Then open `http://127.0.0.1:8000` on your laptop.
-
-### Direct Fast Deployment command
-
-If you want to quickly deploy code changes directly to a running VM from your local machine, run the following `gcloud` SSH command. This pulls the latest `main` branch, stops the old server, and restarts it using `nohup` so it stays alive:
-
-```bash
-gcloud compute ssh instance-20260413-195035 --zone us-west1-c --project=aerial-rarity-484202-j8 --command="bash ~/deploy.sh"
-```
-*(Ensure `~/deploy.sh` is defined on your VM to execute `git pull` and restart the `server.py` process).*
-## Evaluation
-
-The evaluation module now uses weak labels derived from the real attendance data:
-
-- each imported attendee becomes a query
-- that attendee's known event sessions become the relevant set
-- hybrid retrieval is compared against a keyword baseline
-
-Run it with:
-
-```bash
-python3 -m conference_matching.evaluation
-```
+- Ranking cards now prioritize **Activity overlap** using attendee `source_events`.
+- Duplicate rationale bullets were removed; each bullet conveys distinct information.
+- LLM rationale label is now `Why connect with this person`.
+- Response header is product-style and avoids repeating the user's exact question.
 
 ## Tests
-
-Run the tests with:
 
 ```bash
 python3 -m unittest discover -s tests
 ```
 
-If your system Python blocks installs (PEP 668), use a venv and install dependencies first (same as on a VM):
+If needed:
 
 ```bash
 python3 -m venv .venv
@@ -210,17 +170,13 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-Engine tests require `numpy` and the rest of `requirements.txt` (sentence-transformers / FAISS paths may load on first run depending on your environment).
-
-## Important limitation
-
-The Kaggle dataset is an attendance dataset, not a full GatherBlock profile database. It provides event rows and attendee contact fields, but it does not provide rich role labels such as founder/investor, nor explicit asks/offers. The app therefore derives some search fields heuristically from event names, locations, and attendance history.
-
 ## File layout
 
-- [conference_matching/data.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/data.py): import and dataset loading
-- [conference_matching/kaggle_import.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/kaggle_import.py): Kaggle normalization CLI
-- [conference_matching/engine.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/engine.py): matching and ranking
-- [conference_matching/evaluation.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/evaluation.py): weak-label evaluation
-- [conference_matching/server.py](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/conference_matching/server.py): local API and static file serving
-- [static/index.html](/Users/xiancao/Downloads/2026NLP/NLP_Rag/Conference-Matching-Platform/repo/static/index.html): web UI
+- `conference_matching/data.py`: loaders and normalization logic
+- `conference_matching/gtc_import.py`: wide-row GTC import CLI
+- `conference_matching/engine.py`: indexing, scoring, ranking, payload fields
+- `conference_matching/llm.py`: optional Ollama reasoning
+- `conference_matching/server.py`: API + static hosting
+- `scripts/generate_gtc_wide_csv.py`: synthetic GTC CSV generation
+- `static/index.html`: UI shell
+- `static/app.js`: query UX and result rendering

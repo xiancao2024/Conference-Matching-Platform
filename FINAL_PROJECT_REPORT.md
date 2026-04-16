@@ -1,6 +1,6 @@
 # CS 6120 - Final Project Report
 
-**Title**: Conference Matching Platform: Hybrid Retrieval over Real Attendance Data  
+**Title**: Conference Matching Platform: People-First Hybrid Retrieval for GTC-Style Profiles  
 **Authors**: Xian Cao  
 **Repository**: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)
 
@@ -8,132 +8,137 @@
 
 ## 1 Objectives and Introduction
 
-Large conferences create two linked discovery problems: participants need help finding relevant sessions, and they also need help identifying other attendees with overlapping interests. This project builds a conference matching platform that works directly on real attendance logs instead of on hand-authored profile cards.
+The project focuses on a practical conference task: **who should I meet?**  
+Instead of ranking sessions and attendees together, the current product is deliberately scoped to a **single-conference, people-only** retrieval workflow.
 
-The current system is centered on the public Kaggle Event Attendance Dataset (`cankatsrc/event-attendance-dataset`). Raw CSV rows are normalized into a conference schema with attendee entities and event/session entities. On top of that normalized data, the platform provides a hybrid retrieval engine, a local web interface, weak-label evaluation, and an optional local LLM layer for conversational responses and lightweight result explanations.
+Input data follows a GTC-style wide schema: one row per attendee with profile fields (education, major, job, experience), interest tags, and registered agenda items. This table is normalized into a unified JSON format and queried by a hybrid retrieval engine.
 
-The main goal is practical rather than purely generative: accept natural-language requests such as "find climate attendees" or "show AI sessions", map them into a retrieval query, and rank the most relevant imported entities using lexical, conceptual, structural, and optional embedding-based evidence.
+The goal is not open-ended generation. The system accepts natural-language intent (e.g., "CUDA and LLM inference people"), converts it into a structured profile, and returns the most relevant attendees with short reasons.
 
 ## 2 Background and Related Work
 
-**Dataset context.** The Kaggle Event Attendance Dataset contains noisy operational records rather than curated user profiles. Typical fields include event identifiers, event names, locations, timestamps, attendee names, emails, and phone numbers. This makes the task interesting because useful matchmaking signals must be inferred from sparse event metadata rather than read from rich biographies.
+**Dataset context.** Real event systems often have sparse profile quality and inconsistent fields. Even in wide tables, useful matchmaking evidence is distributed across structured attributes and free text.
 
-**Related work.** The project is inspired by hybrid retrieval systems used in modern search and RAG pipelines. Instead of retrieving document passages for question answering, this system retrieves structured entities representing attendees and event resources. The implementation combines sparse lexical matching, concept expansion through a small ontology, structured boosts, and optional dense retrieval with Sentence Transformers plus FAISS.
+**Related retrieval pattern.** The system follows a common hybrid search architecture used in modern RAG/recommendation stacks:
+
+- sparse lexical relevance
+- concept expansion through ontology mappings
+- deterministic structured boosts
+- optional dense embedding similarity (Sentence Transformers + FAISS)
+
+This design balances interpretability and ranking quality while remaining deployable on local/VM environments.
 
 ## 3 Approach and Implementation
 
 ### 3.1 Data ingestion and normalization
 
-The import pipeline accepts a Kaggle zip file, a CSV file, or an extracted directory. It searches for the best matching CSV using column alias rules, reads attendance rows, and writes a normalized JSON dataset.
+The active ingestion path is `conference_matching.gtc_import`, which reads a wide-row attendee CSV and writes normalized JSON (default: `data/conference_gtc.json`).
 
-Normalization produces two entity types:
+Key output behavior:
 
-- **Attendees**: role `participant`, with name, inferred organization, sector tags, asks/offers, and the list of source events they attended.
-- **Events**: stored as `resource` entities with role `session`, with name, location, date metadata, attendee counts, and inferred topical sectors.
+- each row becomes an attendee entity (`entity_type=attendee`, `role=participant`)
+- agenda registrations are kept as attendee context (`source_events`, `tags`, bio text)
+- session/resource entities are not generated in this product mode
+- conference-level metadata is fixed to a single event context (`event_count=1`)
 
-Several fields are derived heuristically:
-
-- organization is inferred from email domains
-- sectors and tags are inferred from event names and locations through phrase and token mappings
-- attendee bios and event bios are synthesized from imported attendance history
-
-This design keeps the pipeline robust even though the source dataset does not contain explicit founder/investor labels or rich self-descriptions.
+For local testing at scale, `scripts/generate_gtc_wide_csv.py` can synthesize 50/10k-row datasets with realistic GTC agenda titles.
 
 ### 3.2 Hybrid retrieval engine
 
-The matcher in `conference_matching/engine.py` builds an index over normalized entities and scores them with several signals:
+`conference_matching/engine.py` scores entities with:
 
-- **Lexical similarity**: TF-IDF-style cosine similarity over normalized tokens
-- **Concept similarity**: ontology-driven concept overlap, such as mapping "health AI" to healthcare and AI concepts
-- **Structured score**: boosts for role fit, sector fit, stage fit, ask/offer overlap, and intent fit
-- **Optional embedding score**: dense similarity from `all-MiniLM-L6-v2` when local embeddings and FAISS are available
+- lexical similarity over normalized tokens
+- concept similarity from ontology expansion
+- structured boosts (intent, role, sector/topic evidence, ask/offer overlap where available)
+- optional embedding similarity via `all-MiniLM-L6-v2` + FAISS
 
-The final score is a weighted combination of lexical, concept, embedding, and structured components. For topical people-search queries, the matcher also applies a stricter filter: if the user is searching for people and mentions explicit topics/events, attendees must show topic evidence and, in some cases, event-link evidence through their `source_events`.
+Embedding lifecycle was updated for deployment usability:
 
-The system also exposes a keyword-only baseline used for evaluation.
+- embeddings are cached to `data/embeddings.npy`
+- FAISS index is cached to `data/faiss.index`
+- if cache count matches current entities, vectors are reused on startup
+- if missing, vectors can be built on the fly up to `CONFERENCE_EMBED_MAX_ENTITIES` (default `20000`)
+- startup logs now print explicit embedding build start/success/failure messages
 
 ### 3.3 Query routing and web application
 
-`conference_matching/server.py` provides a lightweight HTTP server and routes requests into four modes:
+`conference_matching/server.py` serves static UI and API endpoints:
 
-- empty query
-- greeting/thanks
-- general question
-- retrieval request
+- `GET /api/conference` for dataset metadata
+- `POST /api/match` for retrieval
 
-General questions are answered through the optional local Ollama integration in `conference_matching/llm.py`. Retrieval requests are converted into a structured query profile and passed to the matcher. The browser client then renders ranked session and attendee cards with short summaries.
+The web client (`static/app.js`) now emphasizes product-facing outcomes:
 
-An important implementation detail is that the deterministic engine already produces rule-based explanations. If Ollama is available, the system also adds an extra one-sentence `llm_reason` to the top retrieved items, but retrieval itself does not depend on the LLM.
+- ranking cards prioritize **Activity overlap** using `source_events`
+- card rationale bullets are non-duplicative (activity + profile strength)
+- optional LLM text is labeled **"Why connect with this person"**
+- response framing avoids repeating the user prompt verbatim
+
+General-purpose conversational handling remains optional via local Ollama (`conference_matching/llm.py`). Retrieval itself is deterministic and does not depend on LLM availability.
 
 ### 3.4 Code organization
 
-- `conference_matching/data.py`: dataset discovery, CSV loading, normalization, and dataset access
-- `conference_matching/kaggle_import.py`: CLI entrypoint for import
-- `conference_matching/ontology.py`: phrase/token concept mappings and role aliases
-- `conference_matching/engine.py`: indexing, scoring, ranking, explanations, and keyword baseline
-- `conference_matching/llm.py`: optional Ollama-based general answers and top-result explanations
-- `conference_matching/evaluation.py`: weak-label benchmark construction and ranking metrics
-- `conference_matching/server.py`: local API and static file server
+- `conference_matching/data.py`: normalization and dataset loading
+- `conference_matching/gtc_import.py`: GTC wide-row import CLI
+- `conference_matching/ontology.py`: concept mappings
+- `conference_matching/engine.py`: indexing/scoring/ranking
+- `conference_matching/llm.py`: optional local LLM integration
+- `conference_matching/server.py`: API and static hosting
+- `scripts/generate_gtc_wide_csv.py`: synthetic dataset generation
+- `static/app.js`: query UX and result rendering
 
 ## 4 Data and Analysis
 
-**Data source**:
+The current product dataset is a GTC-style attendee table, either organizer-provided or synthetic for stress-testing.
 
-- Kaggle: [https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset](https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset)
+Representative agenda labels used in experiments include:
 
-The source data is intentionally limited. It tells us who attended which event, but not why they attended, what role they play professionally, or what they are explicitly looking for. Because of that, the project leans on conservative inference rather than aggressive hallucinated enrichment.
+- NVIDIA CEO Keynote
+- Generative AI Theater: LLM Inference
+- CUDA Developer Lab
+- Robotics & Edge AI Session
+- Healthcare AI Roundtable
 
-The main analytical choices are:
+Analytical choices in this iteration:
 
-- treat attendance as the strongest observed relation in the dataset
-- infer topical sectors from event metadata rather than from nonexistent biographies
-- keep all entities in one searchable space so attendee and session results can be ranked together
+- use a people-only retrieval target to match the product goal
+- treat registered agenda items as strong behavioral evidence
+- expose activity overlap directly in result rationale
 
-This makes the project a good example of retrieval over weakly structured real data rather than over idealized benchmark data.
+These choices reduced user confusion observed when sessions and people were mixed in one ranked list.
 
 ## 5 Results and Evaluation
 
-### 5.1 Evaluation methodology
+### 5.1 Product behavior outcomes
 
-The evaluation module builds weak labels directly from attendance history. Each attendee becomes a query, and the sessions/events they are known to have attended become the relevant set. The system then compares:
+Recent updates improved practical usability:
 
-- the full hybrid matcher
-- a keyword-only baseline
+- faster restarts when embedding cache is present (no redundant re-encoding)
+- clearer startup diagnosis from embedding progress logs
+- more actionable card copy focused on connection decisions
 
-Metrics reported are Precision@5, Recall@5, nDCG@5, and Mean Reciprocal Rank (MRR).
+### 5.2 Ranking quality notes
 
-### 5.2 Quantitative results
+Hybrid scoring still outperforms pure keyword behavior in ordering quality, especially when users mix skill terms and agenda terms (e.g., "CUDA + LLM inference").
 
-The repository already includes an evaluation snapshot in `eval_output.json` for a 3-query benchmark fixture:
+### 5.3 Operational observation
 
-| Metric | Hybrid Matcher | Keyword Baseline | Relative Improvement |
-| --- | --- | --- | --- |
-| Precision@5 | 0.20 | 0.20 | 0% |
-| Recall@5 | 1.00 | 1.00 | 0% |
-| nDCG@5 | 1.0000 | 0.5436 | +83.9% |
-| MRR | 1.0000 | 0.3889 | +157.1% |
-
-### 5.3 Interpretation
-
-Both systems reach perfect Recall@5 on this small fixture because the relevant event is usually somewhere in the top five results. The more meaningful difference is ranking quality: the hybrid system consistently places the relevant event first, while the keyword baseline often ranks the attendee record itself above the matching event.
-
-That pattern matches the current implementation. The hybrid model benefits from concept expansion, structured intent scoring, and optional dense similarity, while the keyword baseline only sees surface token overlap.
+On CPU-only VM deployment with 10k attendees, first-time embedding build is the dominant startup cost. Persisting `data/` as a Docker volume avoids repeated cost across restarts.
 
 ## 6 Limitations and Future Work
 
-The project still inherits strong limits from the source dataset:
+Current limits:
 
-- attendee roles are inferred heuristically rather than observed directly
-- asks/offers are synthetic placeholders derived from attendance context
-- quality depends on topic mappings in the ontology and on event naming quality
-- embedding support is optional and depends on local model/index availability
+- profile richness depends on source CSV quality
+- activity overlap is string/token based (not semantic event ontology yet)
+- optional LLM explanation quality depends on local model latency
 
-Promising next steps are:
+Next steps:
 
-1. Add richer benchmark sets with manually judged relevance, not only weak labels.
-2. Distinguish more event types and attendee intents beyond the current participant/session framing.
-3. Expand the frontend to expose score breakdowns and evaluation views directly in the UI.
-4. Add safer profile enrichment pipelines only where external evidence is explicit and attributable.
+1. Add stronger event-level semantic normalization (agenda synonym clusters).
+2. Add explicit warmup endpoints and startup health states.
+3. Build larger judged relevance sets for offline ranking evaluation.
+4. Introduce user feedback loops (accept/reject matches) for learning-to-rank.
 
 ## 7 Reproducibility and Submission Info
 
@@ -149,32 +154,20 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-**2. Import the Kaggle dataset**
+**2. Generate/import dataset**
 
 ```bash
-python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
-```
-
-Or, if using `kagglehub`:
-
-```bash
-.venv/bin/python -m pip install kagglehub
-.venv/bin/python -m conference_matching.kaggle_import
+.venv/bin/python scripts/generate_gtc_wide_csv.py --rows 10000 --output data/gtc_generated_10k.csv
+.venv/bin/python -m conference_matching.gtc_import --input data/gtc_generated_10k.csv --output data/conference_gtc.json
 ```
 
 **3. Start the server**
 
 ```bash
-.venv/bin/python server.py
+CONFERENCE_DATA_PATH=data/conference_gtc.json .venv/bin/python server.py
 ```
 
-**4. Run evaluation**
-
-```bash
-.venv/bin/python -m conference_matching.evaluation
-```
-
-**5. Run tests**
+**4. Run tests**
 
 ```bash
 .venv/bin/python -m unittest discover -s tests
