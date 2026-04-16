@@ -1,9 +1,24 @@
-% Overleaf: set "Main document" to main.tex; compiler: pdfLaTeX (or LaTeX).
+% Overleaf: Main document = main.tex; compiler = pdfLaTeX. Entire preamble is in this file (no subfolders).
 \documentclass[paper=a4, fontsize=11pt]{scrartcl}
 
 \newcommand{\assignment}{CS 6120 Final Project Report --- GTC Networking Copilot (Retrieval-Augmented Matching)}
 \newcommand{\duedate}{April 16, 2026}
-\input{include/hw-template.tex}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\hypersetup{
+  pdftitle={\assignment},
+  pdfauthor={Conference Matching Platform},
+}
+
+\title{\assignment}
+\date{\duedate}
 
 \author{%
   \textbf{Xian Cao, Xueming Tang, Chenyang Li} \\

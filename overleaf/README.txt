@@ -1,16 +1,12 @@
 Overleaf project (CS 6120 report)
 ==================================
 
-Upload to Overleaf
-------------------
-1. Zip this entire `overleaf/` folder (keep `main.tex` and `include/hw-template.tex` paths).
-2. Overleaf: New Project -> Upload Project -> upload the zip.
-3. Menu (upper left) -> Main document: select `main.tex`.
-4. Compiler: pdfLaTeX (default). KOMA-Script (`scrartcl`) is preinstalled on Overleaf.
+Upload options
+--------------
+A) Upload ONLY `main.tex` (single file) — full preamble is inlined; no \input paths.
 
-Edit authors / due date at the top of `main.tex` (\author, \newcommand{\duedate}{...}).
+B) If you use Git sync: keep `main.tex` at project root on Overleaf.
 
-Sync with Git repo
-------------------
-The same sources live under the repo root as `FINAL_PROJECT_REPORT.tex` and `include/hw-template.tex`.
-After editing in Overleaf, copy changes back or re-download the zip into `overleaf/` if you want them in Git.
+Compiler: pdfLaTeX. Main document: main.tex.
+
+If you see "output.pdf" errors: delete any stray output.pdf in the Overleaf project.
