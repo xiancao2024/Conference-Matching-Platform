@@ -37,9 +37,9 @@ Big tech conferences like GTC pack in tons of people who care about similar topi
 
 \section{Background and Motivation}
 
-\subsection*{Heilmeier-style framing}
+\subsection*{Framing the problem}
 
-We follow the \href{https://www.darpa.mil/work-with-us/heilmeier-catechism}{Heilmeier Catechism} as a skeptical-audience check. \textbf{What are we trying to do?} Turn informal networking goals into ranked, explainable introductions. \textbf{How is it done today?} Spreadsheets, hallway luck, or generic chatbots without a grounded attendee index. \textbf{What is new?} Hybrid retrieval over 10k+ structured profiles plus \textbf{grounded} local-LLM explanations (not inventing people). \textbf{Who cares?} Attendees and organizers. \textbf{Risks?} Synthetic data is not real registration; CPU LLM latency; explanations must cite retrieved text only.
+We loosely borrowed the spirit of the \href{https://www.darpa.mil/work-with-us/heilmeier-catechism}{Heilmeier Catechism}---basically, if a busy TA skims this, what should they walk away believing? The pain point is simple: you have a huge attendee list and a vague goal (\emph{I want to meet people in robotics / LLMs / whatever}), but there is no obvious button that turns that into a short ranked list with reasons you can trust. Today that usually means spreadsheets, DMs, or a generic chatbot that is not tied to your actual roster. Our pitch is smaller but concrete: combine hybrid retrieval over 10k+ profile rows with a \textbf{local} LLM that only comments on text we actually retrieved, so we are less likely to ``invent'' a person or a fact. The main caveats are honest ones for a class build---our GTC table is synthetic, not live registration data, and running Llama on CPU can feel slow, so we lean on caching and a thin generation step.
 
 \subsection*{Impact}
 
