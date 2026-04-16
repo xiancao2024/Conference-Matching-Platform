@@ -17,7 +17,7 @@
 
 \section{Proposed Objective}
 
-Large technical conferences concentrate thousands of participants with overlapping interests, yet discovering \emph{which} individuals merit an introduction remains largely ad hoc. This work proposes a conference networking assistant framed in the \textbf{retrieval-augmented generation} (RAG) paradigm~\cite{lewis2020retrieval}: first \textbf{retrieve} a short list of attendee profiles that best match a natural-language query, then \textbf{generate} brief connection rationales with a \textbf{locally hosted} language model whose inputs are restricted to those retrieved records. The objective is pragmatic rather than open-ended: improve the efficiency and transparency of people discovery while keeping explanations \textbf{grounded} in roster content rather than in the model's static knowledge.
+Big tech conferences like GTC pack in tons of people who care about similar topics, but when you actually get there it is still pretty random how you figure out \emph{who} to talk to---you wander the floor, bump into folks, or scroll spreadsheets if you even have one. For our project we wanted something more like a class-style \textbf{RAG} setup~\cite{lewis2020retrieval}: you type a plain-English question (\emph{who should I meet if I care about CUDA and LLMs?}), we \textbf{retrieve} the best-matching attendee rows from our roster, then a small \textbf{local} LLM writes a short ``why this person'' blurb using \textbf{only} what we pulled from those profiles. We are not trying to build an open-ended chatbot; we just want matches that feel tied to real roster text instead of whatever the model memorized.
 
 \section{Background and Motivation}
 
