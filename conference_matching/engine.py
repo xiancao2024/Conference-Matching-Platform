@@ -232,6 +232,26 @@ def _infer_search_intent_from_text(text: str) -> str | None:
     return None
 
 
+def _retrieval_focus_boost(free_text: str, indexed: "IndexedEntity") -> float:
+    """Extra signal from user wording overlapping the event/person name and searchable text."""
+    if not free_text.strip():
+        return 0.0
+    q_tokens = set(_tokenize(free_text))
+    if not q_tokens:
+        return 0.0
+    name_tokens = set(_tokenize(str(indexed.entity.get("name", ""))))
+    name_hits = q_tokens & name_tokens
+    boost = min(0.09, 0.055 * len(name_hits))
+    hay = indexed.searchable_text.lower()
+    extra = 0.0
+    for t in q_tokens:
+        if len(t) < 4 or t in name_hits:
+            continue
+        if t in hay:
+            extra += 0.01
+    return min(0.14, boost + min(0.05, extra))
+
+
 def _resolve_search_intent(query: dict[str, Any], free_text: str) -> str:
     explicit = _normalize_search_intent(query.get("search_intent"))
     if explicit != "mixed":
@@ -447,6 +467,13 @@ class ConferenceMatcher:
             "headline": query.get("headline", "").strip(),
             "search_intent": _resolve_search_intent(query, free_text),
         }
+        has_session_entities = any(
+            ie.entity.get("entity_type") == "resource"
+            or _normalize_role(str(ie.entity.get("role", ""))) == "session"
+            for ie in self.entities
+        )
+        if not has_session_entities:
+            normalized_query["search_intent"] = "people"
         query_text = _build_query_text(normalized_query)
         query_tokens = _tokenize(query_text)
         query_concepts = _extract_concepts(query_text)
@@ -464,7 +491,7 @@ class ConferenceMatcher:
                 query_embedding = None
 
         # Use FAISS ANN to get top-K candidates by embedding, then re-rank with full hybrid score
-        FAISS_CANDIDATES = 200
+        FAISS_CANDIDATES = min(400, max(200, len(self.entities)))
         candidate_indices: list[int] | None = None
         if query_embedding is not None:
             try:
@@ -491,10 +518,18 @@ class ConferenceMatcher:
                     embedding_score = float(np.dot(query_embedding[0], self._embeddings[idx]))
                 except Exception:
                     embedding_score = 0.0
-            total = lexical_score * 0.25 + semantic_score * 0.2 + embedding_score * 0.35 + breakdown["structured_total"]
+            focus_boost = _retrieval_focus_boost(free_text, indexed)
+            total = (
+                lexical_score * 0.2
+                + semantic_score * 0.26
+                + embedding_score * 0.42
+                + breakdown["structured_total"]
+                + focus_boost
+            )
             breakdown["lexical"] = round(lexical_score, 4)
             breakdown["semantic"] = round(semantic_score, 4)
             breakdown["embedding"] = round(embedding_score, 4)
+            breakdown["focus_boost"] = round(focus_boost, 4)
             ranked.append(self._result_payload(indexed, total, "hybrid", breakdown, normalized_query))
 
         ranked.sort(key=lambda item: item["score"], reverse=True)
@@ -541,7 +576,7 @@ class ConferenceMatcher:
 
         sector_overlap = _canonical_overlap(query.get("sectors", []), entity.get("sectors", []) + entity.get("tags", []))
         if sector_overlap:
-            boosts["sector_fit"] = min(0.18, 0.06 * len(sector_overlap))
+            boosts["sector_fit"] = min(0.26, 0.09 * len(sector_overlap))
 
         query_stage = query.get("stage", "")
         entity_stages = {_normalize_stage_label(stage) for stage in entity.get("stage", [])}
@@ -552,7 +587,7 @@ class ConferenceMatcher:
 
         ask_offer_overlap = _canonical_overlap(query.get("asks", []), entity.get("offers", []))
         offer_ask_overlap = _canonical_overlap(query.get("offers", []), entity.get("asks", []))
-        boosts["ask_offer_fit"] = min(0.2, 0.05 * len(ask_offer_overlap) + 0.03 * len(offer_ask_overlap))
+        boosts["ask_offer_fit"] = min(0.28, 0.065 * len(ask_offer_overlap) + 0.042 * len(offer_ask_overlap))
 
         looking_for = {item.lower() for item in query.get("looking_for", [])}
         if looking_for:

@@ -5,5 +5,9 @@ __pycache__/
 .DS_Store
 .venv/
 data/conference_kaggle.json
+data/conference_gtc.json
+# Large synthetic CSVs (keep small samples like gtc_local_sample.csv tracked if desired)
+data/gtc_*10k*.csv
+data/gtc_generated_*.csv
 data/*.zip
 data/raw/

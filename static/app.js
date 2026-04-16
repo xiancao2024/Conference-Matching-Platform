@@ -41,42 +41,9 @@ function addMessage(kind, innerHtml) {
   return article;
 }
 
-function detectGoals(question) {
-  const text = question.toLowerCase();
-  const raw = question.trim();
-
-  const sessionEn =
-    /\b(sessions?|events?|schedule|tracks?|talks?|keynote|workshops?|panels?|venues?|meetups?|agenda)\b/i.test(
-      text
-    );
-  const sessionZh = /[找想看有哪推荐].{0,6}(会议|分会|论坛|场次|活动|峰会|演讲|议程|日程|展会)/.test(raw);
-  const sessionZh2 = /(会议|论坛|议程|场次|峰会|演讲|活动|分会|keynote)/i.test(raw);
-
-  const peopleEn =
-    /\b(attendees?|people|person|someone|peers?|who\s|networking with|intro(?:duction)?s?|connect with)\b/i.test(
-      text
-    );
-  const peopleZh = /(谁|哪些人|参会者|嘉宾|观众|找人|认识.*人|同行|伙伴)/.test(raw);
-
-  let intent = "mixed";
-  let looking_for = ["sessions", "peers"];
-  let target_roles = ["session", "participant"];
-
-  if ((sessionEn || sessionZh || sessionZh2) && !peopleEn && !peopleZh) {
-    intent = "sessions";
-    looking_for = ["sessions"];
-    target_roles = ["session"];
-  } else if ((peopleEn || peopleZh) && !sessionEn && !sessionZh && !sessionZh2) {
-    intent = "people";
-    looking_for = ["peers"];
-    target_roles = ["participant"];
-  } else if ((sessionEn || sessionZh || sessionZh2) && (peopleEn || peopleZh)) {
-    intent = "mixed";
-    looking_for = ["sessions", "peers"];
-    target_roles = ["session", "participant"];
-  }
-
-  return { intent, looking_for, target_roles };
+/** Single-conference (GTC) product: matching is people-only; agenda words refine the query. */
+function detectGoals() {
+  return { intent: "people", looking_for: ["peers"], target_roles: ["participant"] };
 }
 
 function detectSectors(question) {
@@ -89,6 +56,12 @@ function detectSectors(question) {
     ["medtech", "healthcare"],
     ["biotech", "healthcare"],
     ["ai", "artificial intelligence"],
+    ["llm", "artificial intelligence"],
+    ["llms", "artificial intelligence"],
+    ["cuda", "developer tools"],
+    ["robotics", "robotics"],
+    ["edge ai", "artificial intelligence"],
+    ["autonomous", "artificial intelligence"],
     ["machine learning", "artificial intelligence"],
     ["health", "healthcare"],
     ["medical", "healthcare"],
@@ -110,13 +83,13 @@ function detectSectors(question) {
 }
 
 function buildRequest(question) {
-  const inferred = detectGoals(question);
+  const inferred = detectGoals();
   return {
     role: "participant",
     stage: "all",
     looking_for: inferred.looking_for,
     target_roles: inferred.target_roles,
-    search_intent: inferred.intent,
+    search_intent: "people",
     sectors: detectSectors(question),
     asks: question,
     notes: question
@@ -138,96 +111,26 @@ function scoreLabel(score) {
   return { icon: "·", cls: "signal-low" };
 }
 
-function extractEventMeta(name, bio) {
-  const n = name.toLowerCase();
-  const level =
-    n.includes("advanced") || n.includes("expert") ? "Advanced" :
-    n.includes("intermediate") ? "Intermediate" :
-    (n.includes("beginner") || n.includes("fundamental") || n.includes("basic") || n.includes("intro")) ? "Beginner-friendly" : null;
-
-  const type =
-    n.includes("workshop") ? "Workshop 🛠" :
-    n.includes("summit")   ? "Summit 🏔" :
-    n.includes("seminar")  ? "Seminar 📖" :
-    n.includes("hackathon")? "Hackathon 💻" :
-    n.includes("panel")    ? "Panel 🎙" :
-    n.includes("forum")    ? "Forum 💬" :
-    n.includes("conference")? "Conference 🎤" : "Session";
-
-  const attendeeMatch = (bio || "").match(/records (\d[\d,]*) attendee/);
-  const attendeeCount = attendeeMatch ? parseInt(attendeeMatch[1].replace(/,/g, "")) : null;
-
-  const focusWords = ["profit-focused","revenue","demand-driven","reactive","strategic","collaborative","applied","enterprise","global","practical","hands-on","real-time"];
-  const adjectives = focusWords.filter(w => n.includes(w));
-
-  return { level, type, attendeeCount, adjectives };
-}
-
 function buildCardContent(match, index) {
-  const role = match.role;
   const sectors = (match.sectors || []).slice(0, 2);
-  const topSector = sectors[0] || "this topic";
+  const topSector = sectors[0] || "your search";
+  const org = match.organization && match.organization !== "Example" ? match.organization : null;
+  const why = org
+    ? `Profile overlap: ${topSector} · ${org}`
+    : `Interests and profile align with ${topSector}`;
 
-  if (role === "session" || match.entity_type === "resource") {
-    const meta = extractEventMeta(match.name || "", match.bio || "");
-    
-    // 1. Shorter decision signal
-    let why = `Best if you want hands-on experience`;
-    if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
-      why = `Best for: ${topSector} + business impact`;
-    else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("reactive") || meta.adjectives.includes("real-time"))
-      why = `Best for: backend / systems engineers`;
-    else if (meta.adjectives.includes("enterprise") || meta.adjectives.includes("global"))
-      why = `Best for: enterprise leaders`;
-    else if (meta.type && meta.type.startsWith("Workshop"))
-      why = `Best for: practical, hands-on learning`;
-    else
-      why = `Best for: exploring ${topSector}`;
-
-    // 2. Value preview
-    const bullets = [];
-    if (meta.adjectives.includes("profit-focused") || meta.adjectives.includes("revenue"))
-      bullets.push("How companies use AI to drive revenue", "Real-world strategic case studies");
-    else if (meta.adjectives.includes("demand-driven") || meta.adjectives.includes("real-time"))
-      bullets.push("Real-time system design patterns", "Handling demand-driven workloads");
-    else if (meta.type && meta.type.startsWith("Workshop"))
-      bullets.push("Step-by-step practical implementation", "Interactive problem solving");
-    else
-      bullets.push(`Core insights on ${topSector}`, "Industry networking opportunities");
-
-    // 3. Action Hint
-    let actionHint = "";
-    if (index === 0) actionHint = "⭐ Good pick if you only attend one session";
-    else if (meta.type && meta.type.startsWith("Workshop")) actionHint = "👉 Worth attending if you want hands-on practice";
-    else actionHint = "👉 Add to your schedule for broad exposure";
-
-    const badges = [];
-    if (meta.level)        badges.push(`📊 ${meta.level}`);
-    if (meta.type)         badges.push(`🎤 ${meta.type.replace(/ .$/, "")}`);
-    if (meta.attendeeCount && meta.attendeeCount >= 500)
-      badges.push(`🔥 ${meta.attendeeCount.toLocaleString()} attendees`);
-
-    return { why, bullets, actionHint, badges };
-  } else {
-    // People card (dataset uses entity_type "attendee")
-    const org = match.organization && match.organization !== "Example" ? match.organization : null;
-    const why = org
-      ? `Works on ${topSector} at ${org}`
-      : `Attending similar ${topSector} sessions`;
-      
-    let eventContext = `Great to discuss real developments in ${topSector}`;
-    if (match.bio && match.bio.includes("registered for")) {
-      eventContext = `🤝 Also attending sessions related to your search`;
-    }
-
-    const bullets = [
-      eventContext,
-      `Potential peer for technical or strategic discussions`
-    ];
-    
-    const actionHint = "👉 Good person to reach out to for networking";
-    return { why, bullets, actionHint, badges: [] };
+  let eventContext = `Bio and interests point to ${topSector}`;
+  if (match.bio && match.bio.includes("Registered GTC sessions")) {
+    eventContext = `Overlapping agenda picks in their bio`;
   }
+
+  const bullets = [
+    eventContext,
+    `Same conference — compare notes on tech, labs, or research`
+  ];
+
+  const actionHint = "👉 Good person to reach out to at GTC";
+  return { why, bullets, actionHint, badges: [] };
 }
 
 function renderCard(match, index) {
@@ -243,6 +146,11 @@ function renderCard(match, index) {
       <p class="result-summary ${confidence.cls}">🎯 ${escapeHtml(why)}</p>
       ${bullets.length ? `<ul class="result-bullets">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>` : ""}
       ${actionHint ? `<p class="result-action-hint">${escapeHtml(actionHint)}</p>` : ""}
+      ${
+        match.llm_reason
+          ? `<p class="llm-reason-text"><strong>Why this match</strong> · ${escapeHtml(match.llm_reason)}</p>`
+          : ""
+      }
     </article>
   `;
 }
@@ -258,68 +166,44 @@ function renderGroup(title, icon, items) {
   `;
 }
 
-function isSessionMatch(m) {
-  return m.entity_type === "resource" || m.role === "session";
-}
-
 function isPeopleMatch(m) {
-  return m.entity_type === "attendee" || m.entity_type === "person" || (m.role === "participant" && !isSessionMatch(m));
-}
-
-function intentSummaryLine(intent) {
-  if (intent === "sessions") {
-    return `<p class="intent-banner">🎯 <strong>找会议 / 活动</strong> · 下面优先展示场次与活动卡片。</p>`;
-  }
-  if (intent === "people") {
-    return `<p class="intent-banner">👥 <strong>找人</strong> · 下面优先展示参会者卡片。</p>`;
-  }
-  return `<p class="intent-banner">🔀 <strong>综合</strong> · 同时展示相关场次与参会者。</p>`;
+  return (
+    m.entity_type === "attendee" ||
+    m.entity_type === "person" ||
+    (m.role === "participant" && m.entity_type !== "resource")
+  );
 }
 
 function renderMatches(question, payload) {
   if (isWeakQuery(question)) {
     return `
-      <p class="message-title">Blockie AI</p>
+      <p class="message-title">Blockie</p>
       <p>Not sure what you're looking for yet 👀</p>
-      <p class="result-suggestions-hint">Try searching for something specific, for example:</p>
+      <p class="result-suggestions-hint">Try something concrete, for example:</p>
       <ul class="query-suggestions">
-        <li>AI and machine learning sessions</li>
-        <li>Networking events</li>
-        <li>People in healthcare or biotech</li>
-        <li>Climate change conferences</li>
+        <li>Who works on CUDA or LLM inference</li>
+        <li>Attendees into robotics or edge AI</li>
+        <li>People who picked keynote + healthcare sessions</li>
+        <li>PhDs in CS who list simulation interests</li>
       </ul>
     `;
   }
 
-  const intent = (payload.query_profile && payload.query_profile.search_intent) || "mixed";
-  const matches = payload.matches || [];
-  const sessions = matches.filter(isSessionMatch).slice(0, intent === "sessions" ? 8 : 4);
-  const people = matches.filter(isPeopleMatch).slice(0, intent === "people" ? 8 : 2);
+  const matches = (payload.matches || []).filter(isPeopleMatch).slice(0, 12);
+  const peopleHtml = renderGroup("People", "👥", matches);
 
-  const sessionHtml =
-    intent === "people" ? "" : renderGroup("Sessions & Events", "🎯", sessions);
-  const peopleHtml = intent === "sessions" ? "" : renderGroup("Related People", "👥", people);
-
-  if (!sessionHtml && !peopleHtml) {
+  if (!peopleHtml) {
     return `
-      <p class="message-title">Blockie AI</p>
-      <p>No strong matches found for "<strong>${escapeHtml(question)}</strong>".</p>
-      <p>Try a more specific topic like <em>AI sessions</em> or <em>climate networking</em>.</p>
+      <p class="message-title">Blockie</p>
+      <p>No strong people matches for "<strong>${escapeHtml(question)}</strong>".</p>
+      <p>Try <em>CUDA</em>, <em>LLMs</em>, <em>robotics</em>, a job title, or an agenda phrase people put in their profile.</p>
     `;
   }
 
-  const headline =
-    intent === "sessions"
-      ? `Top sessions for "<strong>${escapeHtml(question)}</strong>".`
-      : intent === "people"
-        ? `People matches for "<strong>${escapeHtml(question)}</strong>".`
-        : `Top results for "<strong>${escapeHtml(question)}</strong>".`;
-
   return `
-    <p class="message-title">Blockie AI</p>
-    ${intentSummaryLine(intent)}
-    <p>${headline}</p>
-    ${sessionHtml}
+    <p class="message-title">Blockie</p>
+    <p class="intent-banner">👥 <strong>People at GTC</strong> · One conference; agenda text is inside each profile.</p>
+    <p>Top people for "<strong>${escapeHtml(question)}</strong>".</p>
     ${peopleHtml}
   `;
 }
@@ -328,7 +212,7 @@ async function runMatch(question) {
   const payload = buildRequest(question);
   const loadingNode = addMessage(
     "assistant",
-    `<p class="message-title">Blockie AI</p><p>Searching the imported conference data...</p>`
+    `<p class="message-title">Blockie</p><p>Searching attendee profiles…</p>`
   );
 
   try {
@@ -349,7 +233,7 @@ async function runMatch(question) {
     loadingNode.remove();
     addMessage(
       "assistant",
-      `<p class="message-title">Blockie AI</p><p>I could not run that search right now. ${escapeHtml(error.message)}</p>`
+      `<p class="message-title">Blockie</p><p>I could not run that search right now. ${escapeHtml(error.message)}</p>`
     );
   }
 }
@@ -357,14 +241,15 @@ async function runMatch(question) {
 function hydrateConference(options) {
   conferenceOptions = options;
   const conference = options.conference || {};
-  conferenceName.textContent = conference.name || "Imported attendance dataset";
+  conferenceName.textContent = conference.name || "GTC roster";
   datasetText.textContent =
-    conference.description || "Imported attendee and session records are ready for search.";
-  eventCount.textContent = formatNumber(conference.event_count);
+    conference.description ||
+    "People-only matching; registered sessions appear as text in each profile.";
+  eventCount.textContent = formatNumber(Math.max(1, conference.event_count || 1));
   attendeeCount.textContent = formatNumber(conference.attendee_count);
   rowCount.textContent = formatNumber(conference.raw_row_count);
 
-  welcomeText.textContent = `Hi, I can search ${formatNumber(conference.attendee_count)} attendees and ${formatNumber(conference.event_count)} events from your imported attendance dataset.`;
+  welcomeText.textContent = `Hi — ${formatNumber(conference.attendee_count)} attendees on file for this conference (source rows: ${formatNumber(conference.raw_row_count)}). Ask who to meet by interests, role, major, or agenda keywords.`;
 }
 
 async function init() {

@@ -1,0 +1,4 @@
+Name,Email,Education Level,Major,Job Title,Work Experience,Interests,Agenda Items,Bio/Resume Snippet
+Ava Chen,ava.chen@northstar.ai,PhD,CS,Research Scientist,6 years in LLM post-training,"LLMs; CUDA; Healthcare AI","NVIDIA CEO Keynote | Generative AI Theater: LLM Inference | CUDA Developer Lab","Focus on efficient inference for medical imaging copilots."
+Leo Park,leo@startup.dev,MS,Data Science,Founder,10+ years building ML infra,"Robotics; Autonomous Vehicles; LLMs","Robotics & Edge AI Session | Jetson Developer Meetup | Deep Learning Training Workshop","Second-time founder; ex-FAANG ML lead."
+Maya Singh,,BS,EE,Software Engineer,3 years,"CUDA; LLMs","CUDA Optimization Lab | Networking Reception","Kernel-side performance tuning for transformer serving."

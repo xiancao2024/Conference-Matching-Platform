@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from .engine import build_default_matcher
 from .evaluation import evaluate
-from .llm import llm_rerank_and_explain
+from .llm import compose_query_from_payload, llm_rerank_and_explain
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -54,8 +54,12 @@ class ConferenceRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(HTTPStatus.BAD_REQUEST, "Invalid JSON body")
             return
         result = get_matcher().match(payload)
-        query_text = payload.get("notes") or payload.get("headline") or ""
-        result["matches"] = llm_rerank_and_explain(query_text, result.get("matches", []))
+        query_text = compose_query_from_payload(payload)
+        result["matches"] = llm_rerank_and_explain(
+            query_text,
+            result.get("matches", []),
+            result.get("query_profile"),
+        )
         self._send_json(result)
 
     def log_message(self, format: str, *args) -> None:

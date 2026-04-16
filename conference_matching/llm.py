@@ -17,35 +17,97 @@ def _ollama_available() -> bool:
         return False
 
 
-def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Use a local LLM to add a natural language explanation to each top result."""
+def compose_query_from_payload(payload: dict[str, Any]) -> str:
+    """Same text union the matcher uses for intent and retrieval focus."""
+    parts: list[str] = []
+    for key in ("notes", "headline", "q"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            parts.append(value.strip())
+    asks_raw = payload.get("asks")
+    if isinstance(asks_raw, str) and asks_raw.strip():
+        parts.append(asks_raw.strip())
+    elif isinstance(asks_raw, list):
+        parts.extend(str(item).strip() for item in asks_raw if str(item).strip())
+    return " ".join(parts).strip()
+
+
+def _truncate(text: str, limit: int = 320) -> str:
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1] + "…"
+
+
+def llm_rerank_and_explain(
+    query: str,
+    matches: list[dict[str, Any]],
+    query_profile: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Use a local LLM to add a short, evidence-grounded relevance line for each top result."""
     if not matches or not _ollama_available():
+        return matches
+    if not (query or "").strip():
         return matches
 
     top = matches[:5]
+    intent = (query_profile or {}).get("search_intent", "mixed")
+    sectors_hint = ", ".join(str(s) for s in (query_profile or {}).get("sectors", [])[:6])
 
-    for i, m in enumerate(top):
+    for m in top:
         name = m.get("name", "")
         role = m.get("role", "")
-        sectors = ", ".join(m.get("sectors", [])[:3])
+        entity_type = m.get("entity_type", "")
+        org = m.get("organization", "")
+        sectors = ", ".join(m.get("sectors", [])[:4])
+        tags = ", ".join((m.get("tags") or [])[:4])
+        bio = _truncate(str(m.get("bio", "")), 280)
+        score = m.get("score", 0)
+        engine_lines = m.get("explanation") or []
+        if isinstance(engine_lines, str):
+            engine_lines = [engine_lines]
+        engine_hint = " ".join(str(line) for line in engine_lines[:2])
+
         prompt = (
-            f'Query: "{query}"\n'
-            f'Result: name="{name}", role={role}, topics={sectors}\n\n'
-            f'In one sentence, explain why this result is or is not relevant to the query. '
-            f'Reply with just the sentence, no extra text.'
+            "You explain why an ATTENDEE profile matches a search query at a single large conference (e.g. GTC). "
+            "Use ONLY the fields below—do not invent employers, paper titles, or sessions not hinted in the text.\n\n"
+            f'User query: "{query}"\n'
+            f"Match focus: {intent} (this app ranks people; agenda wording may appear inside bios/tags).\n"
+        )
+        if sectors_hint:
+            prompt += f"Query sectors/themes (from profile): {sectors_hint}\n"
+        prompt += (
+            "\nResult row:\n"
+            f"- kind: {entity_type} (role={role})\n"
+            f"- name: {name}\n"
+            f"- organization/venue: {org}\n"
+            f"- sectors: {sectors}\n"
+            f"- tags/events: {tags}\n"
+            f"- bio snippet: {bio}\n"
+            f"- match score (0–1-ish blend): {score}\n"
+        )
+        if engine_hint:
+            prompt += f"- retrieval notes: {engine_hint}\n"
+        prompt += (
+            "\nWrite ONE sentence (max 45 words). Tie the match to interests, role, major, registered sessions "
+            "mentioned in the profile, or sector overlap—never invent facts. "
+            "If the fit is weak, say so briefly. Match the user query language when it is Chinese; otherwise English.\n"
+            "Reply with only that sentence."
         )
 
-        payload = json.dumps({
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.2},
-        }).encode()
+        body = json.dumps(
+            {
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.12, "num_predict": 120},
+            }
+        ).encode()
 
         try:
             req = urllib.request.Request(
                 f"{OLLAMA_URL}/api/generate",
-                data=payload,
+                data=body,
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
@@ -53,7 +115,7 @@ def llm_rerank_and_explain(query: str, matches: list[dict[str, Any]]) -> list[di
                 reason = json.loads(resp.read()).get("response", "").strip()
             if reason:
                 m["llm_reason"] = reason
-        except Exception as e:
-            print("LLM Error:", e)
+        except Exception as exc:
+            print("LLM Error:", exc)
 
     return top + matches[5:]

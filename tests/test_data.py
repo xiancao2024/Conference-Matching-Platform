@@ -5,7 +5,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from conference_matching.data import load_event_attendance_rows, normalize_event_attendance_rows
+from conference_matching.data import (
+    load_event_attendance_rows,
+    normalize_event_attendance_rows,
+    normalize_gtc_profile_rows,
+)
 
 
 class KaggleDataImportTest(unittest.TestCase):
@@ -70,6 +74,31 @@ class KaggleDataImportTest(unittest.TestCase):
             rows, source_label = load_event_attendance_rows(csv_path)
             self.assertEqual(len(rows), 1)
             self.assertIn("event_attendance.csv", source_label)
+
+    def test_normalize_gtc_profile_rows_one_row_per_attendee(self) -> None:
+        rows = [
+            {
+                "Name": "Test User",
+                "Email": "test@example.com",
+                "Education Level": "MS",
+                "Major": "CS",
+                "Job Title": "Software Engineer",
+                "Work Experience": "5 years",
+                "Interests": "LLMs; Robotics",
+                "Agenda Items": "CUDA Lab | Keynote",
+                "Bio/Resume Snippet": "Builds GPU kernels for training.",
+            }
+        ]
+        dataset = normalize_gtc_profile_rows(rows, "in-memory")
+        self.assertEqual(dataset["conference"]["source_type"], "gtc-wide-row")
+        self.assertEqual(dataset["conference"]["attendee_count"], 1)
+        self.assertEqual(dataset["conference"]["event_count"], 1)
+        attendees = [e for e in dataset["entities"] if e["entity_type"] == "attendee"]
+        sessions = [e for e in dataset["entities"] if e["entity_type"] == "resource"]
+        self.assertEqual(len(attendees), 1)
+        self.assertEqual(len(sessions), 0)
+        self.assertEqual(attendees[0]["title"], "Software Engineer")
+        self.assertIn("CUDA Lab", attendees[0]["source_events"])
 
 
 if __name__ == "__main__":
