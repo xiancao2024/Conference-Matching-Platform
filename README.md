@@ -15,6 +15,7 @@ The app normalizes that dataset into conference attendees and session/resource r
 - A browser demo with guided queries over imported attendees and sessions.
 - A weak-label evaluation harness built from real attendance links.
 - Automated tests that exercise the real-data schema path.
+- A Docker image (CUDA + Ollama + app server) for GPU-friendly deployment.
 
 ## Data flow
 
@@ -96,6 +97,29 @@ Then open:
 http://127.0.0.1:8000
 ```
 
+## Run with Docker
+
+The repo includes a [`Dockerfile`](Dockerfile) that packages the app on **NVIDIA CUDA 12.2 / Ubuntu 22.04**, installs **Python 3.10**, dependencies from [`requirements.txt`](requirements.txt), **[Ollama](https://ollama.com/)** (with `zstd` so the install script succeeds), copies the project into `/app`, and sets:
+
+- `PYTHONPATH=/app`
+- `CONFERENCE_DATA_PATH=/app/data/conference_kaggle.json`
+
+The default command starts `ollama serve`, warms **`llama3.2:1b`** with a one-line prompt, then runs **`python3 server.py --host 0.0.0.0 --port 8000`** so the web UI and `/api/match` are reachable on port **8000** (optional LLM explanations in [`conference_matching/llm.py`](conference_matching/llm.py) when Ollama is up).
+
+**Prerequisite:** build or run only after you have normalized data at `data/conference_kaggle.json` (see [Import the real dataset](#import-the-real-dataset)). The [`.dockerignore`](.dockerignore) excludes local `venv/`, `.git/`, `__pycache__/`, and optional `*.index` / `*.npy` embedding artifacts so images stay smaller; embeddings are optional and can be rebuilt at runtime if needed.
+
+Build and run:
+
+```bash
+docker build -t conference-matching .
+
+docker run --rm -p 8000:8000 \
+  -v "$(pwd)/data/conference_kaggle.json:/app/data/conference_kaggle.json:ro" \
+  conference-matching
+```
+
+Then open `http://127.0.0.1:8000`. On a Linux host with NVIDIA GPUs you can add `--gpus all` so Ollama can use the GPU; the image is CUDA-based and is aimed at that environment.
+
 For a remote VM such as GCP, bind the server externally:
 
 ```bash
@@ -111,10 +135,15 @@ Or use the helper script:
 If you want to point the app at a specific normalized JSON instead of `data/conference_kaggle.json`:
 
 ```bash
-u3. Create the virtual environment and install `kagglehub` if you want the VM to download the dataset directly.
-4. Import the dataset.
-5. Start the app on `0.0.0.0`.
-6. Open the VM firewall for the app port, or use SSH port forwarding.
+CONFERENCE_DATA_PATH=/full/path/to/conference_kaggle.json python3 server.py
+```
+
+### Deploy on a VM
+
+1. Create a virtual environment and install `kagglehub` if you want the VM to download the dataset directly.
+2. Import the dataset.
+3. Start the app on `0.0.0.0`.
+4. Open the VM firewall for the app port, or use SSH port forwarding.
 
 Example commands on the VM:
 
@@ -181,7 +210,7 @@ python3 -m venv .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-`test_llm_explanations.py` runs without Ollama. Engine and retrieval-filter tests require `numpy` (and the rest of `requirements.txt` for the matcher).
+Engine tests require `numpy` and the rest of `requirements.txt` (sentence-transformers / FAISS paths may load on first run depending on your environment).
 
 ## Important limitation
 
