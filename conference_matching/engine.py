@@ -377,13 +377,18 @@ class ConferenceMatcher:
                 import faiss
                 from sentence_transformers import SentenceTransformer
 
+                print(
+                    f"[conference_matching] Building embeddings for {n} entities (may take several minutes)...",
+                    flush=True,
+                )
                 self._embed_model = SentenceTransformer("all-MiniLM-L6-v2", local_files_only=True)
+                show_bar = n > 200 and os.environ.get("CONFERENCE_EMBED_SHOW_PROGRESS", "1") != "0"
                 vecs = np.array(
                     self._embed_model.encode(
                         [ie.searchable_text for ie in self.entities],
                         normalize_embeddings=True,
                         batch_size=256,
-                        show_progress_bar=False,
+                        show_progress_bar=show_bar,
                     ),
                     dtype="float32",
                 )
@@ -395,7 +400,12 @@ class ConferenceMatcher:
                 self._faiss_index = index
                 self._embeddings = vecs
                 self._has_embeddings = True
-            except Exception:
+                print(
+                    f"[conference_matching] Embeddings ready ({vecs.shape[0]} x {vecs.shape[1]}), saved under {data_dir}",
+                    flush=True,
+                )
+            except Exception as exc:
+                print(f"[conference_matching] Embedding build failed: {exc!r}", flush=True)
                 self._has_embeddings = False
 
         if self._has_embeddings:
@@ -628,6 +638,7 @@ class ConferenceMatcher:
             "offers": entity.get("offers", []),
             "asks": entity.get("asks", []),
             "tags": entity.get("tags", []),
+            "source_events": entity.get("source_events", []),
             "score": round(score, 4),
             "mode": mode,
             "score_breakdown": breakdown,

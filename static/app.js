@@ -111,31 +111,59 @@ function scoreLabel(score) {
   return { icon: "·", cls: "signal-low" };
 }
 
-function buildCardContent(match, index) {
+function queryTokens(question) {
+  return new Set(
+    question
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((token) => token.length >= 4)
+  );
+}
+
+function eventOverlap(events, question) {
+  if (!events.length) return [];
+  const tokens = queryTokens(question);
+  if (!tokens.size) return [];
+  return events.filter((eventName) =>
+    eventName
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .some((token) => token.length >= 4 && tokens.has(token))
+  );
+}
+
+function buildCardContent(match, question) {
   const sectors = (match.sectors || []).slice(0, 2);
   const topSector = sectors[0] || "your search";
+  const events = (match.source_events || []).slice(0, 4);
+  const overlappingEvents = eventOverlap(events, question).slice(0, 2);
+  const eventLabel = overlappingEvents.length
+    ? overlappingEvents.join(" + ")
+    : (events[0] || null);
   const org = match.organization && match.organization !== "Example" ? match.organization : null;
-  const why = org
-    ? `Profile overlap: ${topSector} · ${org}`
-    : `Interests and profile align with ${topSector}`;
+  const why = eventLabel
+    ? `Activity overlap: ${eventLabel}`
+    : (org ? `Profile overlap: ${topSector} · ${org}` : `Interests and profile align with ${topSector}`);
 
-  let eventContext = `Bio and interests point to ${topSector}`;
-  if (match.bio && match.bio.includes("Registered GTC sessions")) {
-    eventContext = `Overlapping agenda picks in their bio`;
-  }
+  const eventContext = eventLabel
+    ? `Registered GTC activity: ${eventLabel}`
+    : `No explicit agenda overlap; profile themes still match ${topSector}`;
+  const profileContext = match.title
+    ? `Profile strength: ${topSector} · ${match.title}`
+    : `Profile strength: ${topSector}`;
 
   const bullets = [
     eventContext,
-    `Same conference — compare notes on tech, labs, or research`
+    profileContext
   ];
 
-  const actionHint = "👉 Good person to reach out to at GTC";
+  const actionHint = "👉 Good person to meet around these GTC activities";
   return { why, bullets, actionHint, badges: [] };
 }
 
-function renderCard(match, index) {
+function renderCard(match, index, question) {
   const confidence = scoreLabel(match.score);
-  const { why, bullets, actionHint, badges } = buildCardContent(match, index);
+  const { why, bullets, actionHint, badges } = buildCardContent(match, question);
   const tags = (match.sectors || []).slice(0, 3);
   return `
     <article class="result-item">
@@ -148,15 +176,15 @@ function renderCard(match, index) {
       ${actionHint ? `<p class="result-action-hint">${escapeHtml(actionHint)}</p>` : ""}
       ${
         match.llm_reason
-          ? `<p class="llm-reason-text"><strong>Why this match</strong> · ${escapeHtml(match.llm_reason)}</p>`
+          ? `<p class="llm-reason-text"><strong>Why connect with this person</strong> · ${escapeHtml(match.llm_reason)}</p>`
           : ""
       }
     </article>
   `;
 }
 
-function renderGroup(title, icon, items) {
-  const cards = items.map((m, i) => renderCard(m, i)).filter(Boolean);
+function renderGroup(title, icon, items, question) {
+  const cards = items.map((m, i) => renderCard(m, i, question)).filter(Boolean);
   if (!cards.length) return "";
   return `
     <div class="result-group">
@@ -190,7 +218,7 @@ function renderMatches(question, payload) {
   }
 
   const matches = (payload.matches || []).filter(isPeopleMatch).slice(0, 12);
-  const peopleHtml = renderGroup("People", "👥", matches);
+  const peopleHtml = renderGroup("People", "👥", matches, question);
 
   if (!peopleHtml) {
     return `
@@ -202,8 +230,8 @@ function renderMatches(question, payload) {
 
   return `
     <p class="message-title">Blockie</p>
-    <p class="intent-banner">👥 <strong>People at GTC</strong> · One conference; agenda text is inside each profile.</p>
-    <p>Top people for "<strong>${escapeHtml(question)}</strong>".</p>
+    <p class="intent-banner">👥 <strong>Recommended people to meet at GTC</strong></p>
+    <p>Prioritized by interest alignment, role fit, and agenda overlap.</p>
     ${peopleHtml}
   `;
 }
