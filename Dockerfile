@@ -19,6 +19,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# Bake sentence-transformers model so embedding works offline (10k+ entities need this on first load).
+RUN python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
 COPY . .
 
 ENV PYTHONPATH=/app
