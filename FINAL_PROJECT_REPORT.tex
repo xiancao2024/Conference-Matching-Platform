@@ -31,7 +31,7 @@ Conference ROI is often capped by \textbf{search friction}. A deployable roster 
 
 \subsection*{Related work (brief)}
 
-\textbf{RAG}~\cite{lewis2020retrieval} decouples parametric knowledge from task-specific evidence by retrieving documents before generation. \textbf{Dense passage retrieval}~\cite{karpukhin2020dense} showed that learned dense representations can outperform sparse baselines for open-domain QA; we use a similar dense channel (sentence embeddings + vector search) alongside lexical and rule-based signals. \textbf{Sentence-BERT}~\cite{reimers2019sentencebert} provides efficient sentence-level encoders suitable for semantic matching at scale. In our setting, ``passages'' are attendee \textbf{profiles}: we retrieve \textbf{entities}, then condition a small local LLM on structured field bundles for short rationales. Public tabular event resources such as the Kaggle Event Attendance dataset~\cite{cankatsrc2023event} illustrate retrieval over attendance-style records; our deployed experiments emphasize a GTC-wide synthetic roster (see below) with the same engineering goal---scalable, reproducible retrieval.
+Hybrid retrieval (sparse lexical signals + dense embeddings + rules) is standard in search and modern \textbf{RAG} systems \cite{lewis2020retrieval}. We adapt the same \emph{retrieve then generate} pattern: retrieve \textbf{entities} (attendees), then generate one-line reasons from \textbf{field bundles} passed to the LLM.
 
 \subsection*{Data source, access, and statistics}
 
@@ -52,7 +52,7 @@ python3 -m conference_matching.gtc_import \
 
 \begin{itemize}
   \item \textbf{Pre-processing:} CSV \(\rightarrow\) normalized JSON (\texttt{conference\_matching/gtc\_import}); normalize headers via aliases; split multi-value interest/agenda fields; synthesize searchable bio text per attendee.
-  \item \textbf{Retrieval algorithms:} hybrid scoring in \texttt{conference\_matching/engine.py}---lexical overlap, ontology concept expansion, structured boosts (role/intent/topic), optional dense similarity via a sentence transformer encoder (MiniLM family, in the spirit of sentence-embedding retrieval~\cite{reimers2019sentencebert}) with FAISS \texttt{IndexFlatIP} on L2-normalized vectors (\texttt{data/embeddings.npy}, \texttt{data/faiss.index}), complementing rather than replacing sparse signals~\cite{karpukhin2020dense}.
+  \item \textbf{Retrieval algorithms:} hybrid scoring in \texttt{conference\_matching/engine.py}---lexical overlap, ontology concept expansion, structured boosts (role/intent/topic), optional dense similarity using \texttt{sentence-transformers/all-MiniLM-L6-v2} with FAISS \texttt{IndexFlatIP} on L2-normalized vectors (\texttt{data/embeddings.npy}, \texttt{data/faiss.index}).
   \item \textbf{Noise remedies:} multi-signal fusion (not embedding-only); light tokenization; people-only intent so session titles do not become separate match rows; optional stricter topical filters for people-queries.
   \item \textbf{Scale:} batch encoding (e.g.\ 256), cached embeddings, FAISS index reuse when entity count matches; Docker volume for \texttt{data/} on VMs.
   \item \textbf{Design decisions (``chunking'' analogy):} attendees are atomic units; agenda text stays embedded in each profile (no arbitrary chunk overlap); query is flattened to searchable text for embedding.
