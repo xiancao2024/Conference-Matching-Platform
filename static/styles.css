@@ -390,6 +390,17 @@ body {
   }
 }
 
+.intent-banner {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
 .result-group {
   margin-top: 14px;
 }
@@ -458,6 +469,7 @@ body {
 
 .signal-strong { color: #2d6a4f !important; }
 .signal-weak   { color: #b08030 !important; }
+.signal-low    { color: var(--muted) !important; font-weight: 500; }
 
 .result-suggestions-hint {
   margin: 10px 0 4px !important;

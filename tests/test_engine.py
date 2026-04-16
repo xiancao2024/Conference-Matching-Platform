@@ -90,6 +90,55 @@ class ConferenceMatcherTest(unittest.TestCase):
         self.assertEqual(result["matches"][0]["entity_type"], "attendee")
         self.assertIn(result["matches"][0]["name"], {"Maya Chen", "Nadia Torres"})
 
+    def test_search_intent_sessions_returns_only_events(self) -> None:
+        result = self.matcher.match(
+            {
+                "search_intent": "sessions",
+                "role": "participant",
+                "stage": "all",
+                "target_roles": ["session", "participant"],
+                "looking_for": ["sessions", "peers"],
+                "sectors": ["healthcare"],
+                "notes": "people networking breakfast",
+            }
+        )
+        self.assertEqual(result["query_profile"]["search_intent"], "sessions")
+        for row in result["matches"]:
+            self.assertEqual(row["entity_type"], "resource")
+            self.assertEqual(row["role"], "session")
+
+    def test_search_intent_people_returns_only_attendees(self) -> None:
+        result = self.matcher.match(
+            {
+                "search_intent": "people",
+                "role": "participant",
+                "stage": "all",
+                "target_roles": ["session", "participant"],
+                "looking_for": ["sessions", "peers"],
+                "sectors": ["healthcare"],
+                "notes": "Health AI Meetup schedule",
+            }
+        )
+        self.assertEqual(result["query_profile"]["search_intent"], "people")
+        for row in result["matches"]:
+            self.assertEqual(row["entity_type"], "attendee")
+
+    def test_search_intent_inferred_sessions_from_wording_when_mixed(self) -> None:
+        """API clients that omit search_intent still get session-only matches when the text says sessions."""
+        result = self.matcher.match(
+            {
+                "role": "participant",
+                "stage": "all",
+                "target_roles": ["session", "participant"],
+                "looking_for": ["sessions", "peers"],
+                "sectors": ["artificial intelligence"],
+                "notes": "Show AI-related sessions from this dataset.",
+            }
+        )
+        self.assertEqual(result["query_profile"]["search_intent"], "sessions")
+        for row in result["matches"]:
+            self.assertEqual(row["entity_type"], "resource")
+
     def test_result_explanations_are_human_readable(self) -> None:
         result = self.matcher.match(
             {

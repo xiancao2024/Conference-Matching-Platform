@@ -174,6 +174,72 @@ def _normalize_stage_label(value: str) -> str:
     return lowered
 
 
+def _match_payload_is_session(item: dict[str, Any]) -> bool:
+    if item.get("entity_type") == "resource":
+        return True
+    return _normalize_role(str(item.get("role", "participant"))) == "session"
+
+
+def _match_payload_is_attendee(item: dict[str, Any]) -> bool:
+    if item.get("entity_type") == "attendee":
+        return True
+    if item.get("entity_type") == "resource":
+        return False
+    return _normalize_role(str(item.get("role", "participant"))) not in {"session", "resource"}
+
+
+def _normalize_search_intent(raw: Any) -> str:
+    value = str(raw or "mixed").strip().lower()
+    if value in {"session", "sessions", "events", "event"}:
+        return "sessions"
+    if value in {"people", "person", "attendees", "attendee", "peers", "peer"}:
+        return "people"
+    if value in {"mixed", "both", "all", ""}:
+        return "mixed"
+    return "mixed"
+
+
+_SESSION_INTENT_RE = re.compile(
+    r"\b(sessions?|events?|schedule|tracks?|talks?|keynote|workshops?|panels?|venues?|meetups?|agenda)\b",
+    re.IGNORECASE,
+)
+_SESSION_INTENT_ZH = re.compile(r"[找想看有哪推荐].{0,8}(会议|分会|论坛|场次|活动|峰会|演讲|议程|日程|展会)")
+_SESSION_INTENT_ZH2 = re.compile(r"(会议|论坛|议程|场次|峰会|演讲|活动|分会)")
+_PEOPLE_INTENT_RE = re.compile(
+    r"\b(attendees?|people|person|someone|peers?|networking\s+with|connect\s+with|introductions?)\b",
+    re.IGNORECASE,
+)
+_PEOPLE_INTENT_WHO = re.compile(r"\bwho\b", re.IGNORECASE)
+_PEOPLE_INTENT_ZH = re.compile(r"(谁|哪些人|参会者|嘉宾|观众|找人|认识.+?人|同行|伙伴)")
+
+
+def _infer_search_intent_from_text(text: str) -> str | None:
+    """When client sends mixed/omitted intent, infer sessions vs people from wording."""
+    if not text or not str(text).strip():
+        return None
+    raw = str(text).strip()
+    low = raw.lower()
+    session_hit = bool(_SESSION_INTENT_RE.search(low)) or bool(_SESSION_INTENT_ZH.search(raw)) or bool(
+        _SESSION_INTENT_ZH2.search(raw)
+    )
+    people_hit = bool(_PEOPLE_INTENT_RE.search(low)) or bool(_PEOPLE_INTENT_WHO.search(low)) or bool(
+        _PEOPLE_INTENT_ZH.search(raw)
+    )
+    if session_hit and not people_hit:
+        return "sessions"
+    if people_hit and not session_hit:
+        return "people"
+    return None
+
+
+def _resolve_search_intent(query: dict[str, Any], free_text: str) -> str:
+    explicit = _normalize_search_intent(query.get("search_intent"))
+    if explicit != "mixed":
+        return explicit
+    inferred = _infer_search_intent_from_text(free_text)
+    return inferred or "mixed"
+
+
 def _build_query_text(query: dict[str, Any]) -> str:
     parts: list[str] = []
     for key in ("headline", "notes", "asks", "offers", "looking_for", "sectors", "target_roles", "stage"):
@@ -355,12 +421,18 @@ class ConferenceMatcher:
         return ranked[:limit]
 
     def match(self, query: dict[str, Any], limit: int = 5) -> dict[str, Any]:
-        # Merge free-text notes/headline into sectors so concept extraction works
-        free_text = " ".join(filter(None, [
-            query.get("notes", ""),
-            query.get("headline", ""),
-            query.get("q", ""),
-        ]))
+        # Merge free-text notes/headline/asks into one string for concepts + intent
+        text_parts: list[str] = []
+        for key in ("notes", "headline", "q"):
+            value = query.get(key)
+            if isinstance(value, str) and value.strip():
+                text_parts.append(value.strip())
+        asks_raw = query.get("asks")
+        if isinstance(asks_raw, str) and asks_raw.strip():
+            text_parts.append(asks_raw.strip())
+        elif isinstance(asks_raw, list):
+            text_parts.extend(str(item).strip() for item in asks_raw if str(item).strip())
+        free_text = " ".join(text_parts).strip()
         inferred_sectors = _normalize_list(query.get("sectors")) + _extract_concepts(free_text)
         normalized_query = {
             "conference_id": query.get("conference_id", self.metadata["id"]),
@@ -373,6 +445,7 @@ class ConferenceMatcher:
             "offers": _normalize_list(query.get("offers")),
             "notes": query.get("notes", "").strip(),
             "headline": query.get("headline", "").strip(),
+            "search_intent": _resolve_search_intent(query, free_text),
         }
         query_text = _build_query_text(normalized_query)
         query_tokens = _tokenize(query_text)
@@ -425,7 +498,23 @@ class ConferenceMatcher:
             ranked.append(self._result_payload(indexed, total, "hybrid", breakdown, normalized_query))
 
         ranked.sort(key=lambda item: item["score"], reverse=True)
-        keyword = self.keyword_search(normalized_query, limit=limit)
+        intent = normalized_query["search_intent"]
+        if intent == "sessions":
+            filtered = [item for item in ranked if _match_payload_is_session(item)]
+            ranked = filtered if filtered else ranked
+        elif intent == "people":
+            filtered = [item for item in ranked if _match_payload_is_attendee(item)]
+            ranked = filtered if filtered else ranked
+
+        keyword = self.keyword_search(normalized_query, limit=max(limit * 4, 20))
+        if intent == "sessions":
+            kw_filtered = [item for item in keyword if _match_payload_is_session(item)]
+            keyword = kw_filtered if kw_filtered else keyword
+        elif intent == "people":
+            kw_filtered = [item for item in keyword if _match_payload_is_attendee(item)]
+            keyword = kw_filtered if kw_filtered else keyword
+        keyword = keyword[:limit]
+
         return {
             "conference": self.metadata,
             "query_profile": normalized_query,

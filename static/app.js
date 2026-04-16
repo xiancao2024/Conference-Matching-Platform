@@ -43,19 +43,40 @@ function addMessage(kind, innerHtml) {
 
 function detectGoals(question) {
   const text = question.toLowerCase();
-  if (text.includes("session") || text.includes("event") || text.includes("schedule")) {
-    return { looking_for: ["sessions"], target_roles: ["session"] };
+  const raw = question.trim();
+
+  const sessionEn =
+    /\b(sessions?|events?|schedule|tracks?|talks?|keynote|workshops?|panels?|venues?|meetups?|agenda)\b/i.test(
+      text
+    );
+  const sessionZh = /[找想看有哪推荐].{0,6}(会议|分会|论坛|场次|活动|峰会|演讲|议程|日程|展会)/.test(raw);
+  const sessionZh2 = /(会议|论坛|议程|场次|峰会|演讲|活动|分会|keynote)/i.test(raw);
+
+  const peopleEn =
+    /\b(attendees?|people|person|someone|peers?|who\s|networking with|intro(?:duction)?s?|connect with)\b/i.test(
+      text
+    );
+  const peopleZh = /(谁|哪些人|参会者|嘉宾|观众|找人|认识.*人|同行|伙伴)/.test(raw);
+
+  let intent = "mixed";
+  let looking_for = ["sessions", "peers"];
+  let target_roles = ["session", "participant"];
+
+  if ((sessionEn || sessionZh || sessionZh2) && !peopleEn && !peopleZh) {
+    intent = "sessions";
+    looking_for = ["sessions"];
+    target_roles = ["session"];
+  } else if ((peopleEn || peopleZh) && !sessionEn && !sessionZh && !sessionZh2) {
+    intent = "people";
+    looking_for = ["peers"];
+    target_roles = ["participant"];
+  } else if ((sessionEn || sessionZh || sessionZh2) && (peopleEn || peopleZh)) {
+    intent = "mixed";
+    looking_for = ["sessions", "peers"];
+    target_roles = ["session", "participant"];
   }
-  if (
-    text.includes("attendee") ||
-    text.includes("people") ||
-    text.includes("person") ||
-    text.includes("who") ||
-    text.includes("peer")
-  ) {
-    return { looking_for: ["peers"], target_roles: ["participant"] };
-  }
-  return { looking_for: ["sessions", "peers"], target_roles: ["session", "participant"] };
+
+  return { intent, looking_for, target_roles };
 }
 
 function detectSectors(question) {
@@ -95,6 +116,7 @@ function buildRequest(question) {
     stage: "all",
     looking_for: inferred.looking_for,
     target_roles: inferred.target_roles,
+    search_intent: inferred.intent,
     sectors: detectSectors(question),
     asks: question,
     notes: question
@@ -112,7 +134,8 @@ function isWeakQuery(text) {
 function scoreLabel(score) {
   if (score >= 0.55) return { icon: "✅", cls: "signal-strong" };
   if (score >= 0.35) return { icon: "⚠️", cls: "signal-weak" };
-  return null;
+  // Always show a card: hybrid scores are often < 0.35 even for good relative matches.
+  return { icon: "·", cls: "signal-low" };
 }
 
 function extractEventMeta(name, bio) {
@@ -186,7 +209,7 @@ function buildCardContent(match, index) {
 
     return { why, bullets, actionHint, badges };
   } else {
-    // People card
+    // People card (dataset uses entity_type "attendee")
     const org = match.organization && match.organization !== "Example" ? match.organization : null;
     const why = org
       ? `Works on ${topSector} at ${org}`
@@ -209,7 +232,6 @@ function buildCardContent(match, index) {
 
 function renderCard(match, index) {
   const confidence = scoreLabel(match.score);
-  if (!confidence) return "";
   const { why, bullets, actionHint, badges } = buildCardContent(match, index);
   const tags = (match.sectors || []).slice(0, 3);
   return `
@@ -236,6 +258,24 @@ function renderGroup(title, icon, items) {
   `;
 }
 
+function isSessionMatch(m) {
+  return m.entity_type === "resource" || m.role === "session";
+}
+
+function isPeopleMatch(m) {
+  return m.entity_type === "attendee" || m.entity_type === "person" || (m.role === "participant" && !isSessionMatch(m));
+}
+
+function intentSummaryLine(intent) {
+  if (intent === "sessions") {
+    return `<p class="intent-banner">🎯 <strong>找会议 / 活动</strong> · 下面优先展示场次与活动卡片。</p>`;
+  }
+  if (intent === "people") {
+    return `<p class="intent-banner">👥 <strong>找人</strong> · 下面优先展示参会者卡片。</p>`;
+  }
+  return `<p class="intent-banner">🔀 <strong>综合</strong> · 同时展示相关场次与参会者。</p>`;
+}
+
 function renderMatches(question, payload) {
   if (isWeakQuery(question)) {
     return `
@@ -251,12 +291,14 @@ function renderMatches(question, payload) {
     `;
   }
 
+  const intent = (payload.query_profile && payload.query_profile.search_intent) || "mixed";
   const matches = payload.matches || [];
-  const sessions = matches.filter(m => m.entity_type === "resource" || m.role === "session").slice(0, 4);
-  const people   = matches.filter(m => m.entity_type === "person"   || m.role === "participant").slice(0, 2);
+  const sessions = matches.filter(isSessionMatch).slice(0, intent === "sessions" ? 8 : 4);
+  const people = matches.filter(isPeopleMatch).slice(0, intent === "people" ? 8 : 2);
 
-  const sessionHtml = renderGroup("Sessions & Events", "🎯", sessions);
-  const peopleHtml  = renderGroup("Related People", "👥", people);
+  const sessionHtml =
+    intent === "people" ? "" : renderGroup("Sessions & Events", "🎯", sessions);
+  const peopleHtml = intent === "sessions" ? "" : renderGroup("Related People", "👥", people);
 
   if (!sessionHtml && !peopleHtml) {
     return `
@@ -266,9 +308,17 @@ function renderMatches(question, payload) {
     `;
   }
 
+  const headline =
+    intent === "sessions"
+      ? `Top sessions for "<strong>${escapeHtml(question)}</strong>".`
+      : intent === "people"
+        ? `People matches for "<strong>${escapeHtml(question)}</strong>".`
+        : `Top results for "<strong>${escapeHtml(question)}</strong>".`;
+
   return `
     <p class="message-title">Blockie AI</p>
-    <p>Top results for "<strong>${escapeHtml(question)}</strong>".</p>
+    ${intentSummaryLine(intent)}
+    <p>${headline}</p>
     ${sessionHtml}
     ${peopleHtml}
   `;
