@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import os
 import re
 from collections import Counter
 import numpy as np
@@ -340,7 +341,7 @@ class ConferenceMatcher:
             )
         # Optional semantic embeddings (sentence-transformers + faiss)
         # Loads precomputed index from disk if available and entity count matches.
-        # Falls back to encoding on-the-fly only for small datasets (<= 5000 entities).
+        # Otherwise encodes on-the-fly if n <= CONFERENCE_EMBED_MAX_ENTITIES (default 20000).
         self._has_embeddings = False
         self._embed_model = None
         self._embeddings: np.ndarray | None = None
@@ -369,7 +370,8 @@ class ConferenceMatcher:
         except Exception:
             self._has_embeddings = False
 
-        needs_fresh_embeddings = (not self._has_embeddings) and n <= 5000
+        embed_max = int(os.environ.get("CONFERENCE_EMBED_MAX_ENTITIES", "20000"))
+        needs_fresh_embeddings = (not self._has_embeddings) and n <= embed_max
         if needs_fresh_embeddings:
             try:
                 import faiss
