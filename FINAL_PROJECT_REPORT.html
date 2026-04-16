@@ -1,460 +1,264 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-<head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="pandoc" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Final Project Report</title>
-  <style>
-    /* Default styles provided by pandoc.
-    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-    */
-    html {
-      color: #1a1a1a;
-      background-color: #fdfdfd;
-    }
-    body {
-      margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
-      overflow-wrap: break-word;
-      text-rendering: optimizeLegibility;
-      font-kerning: normal;
-    }
-    @media (max-width: 600px) {
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CS 6120 Final Project Report</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --fg: #1f2937;
+        --muted: #4b5563;
+        --border: #d1d5db;
+        --bg: #ffffff;
+      }
       body {
-        font-size: 0.9em;
-        padding: 12px;
+        margin: 0 auto;
+        max-width: 860px;
+        padding: 40px 24px 64px;
+        font: 16px/1.6 Georgia, "Times New Roman", serif;
+        color: var(--fg);
+        background: var(--bg);
+      }
+      h1, h2, h3 {
+        line-height: 1.25;
       }
       h1 {
-        font-size: 1.8em;
+        margin-bottom: 0.25rem;
       }
-    }
-    @media print {
-      html {
-        background-color: white;
+      .meta {
+        color: var(--muted);
+        margin-bottom: 1.5rem;
       }
-      body {
-        background-color: transparent;
-        color: black;
-        font-size: 12pt;
+      hr {
+        border: 0;
+        border-top: 1px solid var(--border);
+        margin: 24px 0;
       }
-      p, h2, h3 {
-        orphans: 3;
-        widows: 3;
+      code, pre {
+        font-family: Menlo, Consolas, monospace;
       }
-      h2, h3, h4 {
-        page-break-after: avoid;
+      pre {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        overflow-x: auto;
       }
-    }
-    p {
-      margin: 1em 0;
-    }
-    a {
-      color: #1a1a1a;
-    }
-    a:visited {
-      color: #1a1a1a;
-    }
-    img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
-      max-width: 100%;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      margin-top: 1.4em;
-    }
-    h5, h6 {
-      font-size: 1em;
-      font-style: italic;
-    }
-    h6 {
-      font-weight: normal;
-    }
-    ol, ul {
-      padding-left: 1.7em;
-      margin-top: 1em;
-    }
-    li > ol, li > ul {
-      margin-top: 0;
-    }
-    blockquote {
-      margin: 1em 0 1em 1.7em;
-      padding-left: 1em;
-      border-left: 2px solid #e6e6e6;
-      color: #606060;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
-      font-size: 85%;
-      margin: 0;
-      hyphens: manual;
-    }
-    pre {
-      margin: 1em 0;
-      overflow: auto;
-    }
-    pre code {
-      padding: 0;
-      overflow: visible;
-      overflow-wrap: normal;
-    }
-    .sourceCode {
-     background-color: transparent;
-     overflow: visible;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #1a1a1a;
-      height: 1px;
-      margin: 1em 0;
-    }
-    table {
-      margin: 1em 0;
-      border-collapse: collapse;
-      width: 100%;
-      overflow-x: auto;
-      display: block;
-      font-variant-numeric: lining-nums tabular-nums;
-    }
-    table caption {
-      margin-bottom: 0.75em;
-    }
-    tbody {
-      margin-top: 0.5em;
-      border-top: 1px solid #1a1a1a;
-      border-bottom: 1px solid #1a1a1a;
-    }
-    th {
-      border-top: 1px solid #1a1a1a;
-      padding: 0.25em 0.5em 0.25em 0.5em;
-    }
-    td {
-      padding: 0.125em 0.5em 0.25em 0.5em;
-    }
-    header {
-      margin-bottom: 4em;
-      text-align: center;
-    }
-    #TOC li {
-      list-style: none;
-    }
-    #TOC ul {
-      padding-left: 1.3em;
-    }
-    #TOC > ul {
-      padding-left: 0;
-    }
-    #TOC a:not(:hover) {
-      text-decoration: none;
-    }
-    code{white-space: pre-wrap;}
-    span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
-    html { -webkit-text-size-adjust: 100%; }
-    pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-    pre > code.sourceCode > span:empty { height: 1.2em; }
-    .sourceCode { overflow: visible; }
-    code.sourceCode > span { color: inherit; text-decoration: inherit; }
-    div.sourceCode { margin: 1em 0; }
-    pre.sourceCode { margin: 0; }
-    @media screen {
-    div.sourceCode { overflow: auto; }
-    }
-    @media print {
-    pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-    }
-    pre.numberSource code
-      { counter-reset: source-line 0; }
-    pre.numberSource code > span
-      { position: relative; left: -4em; counter-increment: source-line; }
-    pre.numberSource code > span > a:first-child::before
-      { content: counter(source-line);
-        position: relative; left: -1em; text-align: right; vertical-align: baseline;
-        border: none; display: inline-block;
-        -webkit-touch-callout: none; -webkit-user-select: none;
-        -khtml-user-select: none; -moz-user-select: none;
-        -ms-user-select: none; user-select: none;
-        padding: 0 4px; width: 4em;
-        color: #aaaaaa;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.25rem;
       }
-    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
-    @media screen {
-    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-    }
-    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-    code span.at { color: #7d9029; } /* Attribute */
-    code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { color: #008000; } /* BuiltIn */
-    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-    code span.ch { color: #4070a0; } /* Char */
-    code span.cn { color: #880000; } /* Constant */
-    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-    code span.dt { color: #902000; } /* DataType */
-    code span.dv { color: #40a070; } /* DecVal */
-    code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
-    code span.fl { color: #40a070; } /* Float */
-    code span.fu { color: #06287e; } /* Function */
-    code span.im { color: #008000; font-weight: bold; } /* Import */
-    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-    code span.op { color: #666666; } /* Operator */
-    code span.ot { color: #007020; } /* Other */
-    code span.pp { color: #bc7a00; } /* Preprocessor */
-    code span.sc { color: #4070a0; } /* SpecialChar */
-    code span.ss { color: #bb6688; } /* SpecialString */
-    code span.st { color: #4070a0; } /* String */
-    code span.va { color: #19177c; } /* Variable */
-    code span.vs { color: #4070a0; } /* VerbatimString */
-    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-  </style>
-</head>
-<body>
-<header id="title-block-header">
-<h1 class="title">Final Project Report</h1>
-</header>
-<h1 id="cs-6120-final-project-report">CS 6120 — Final Project
-Report</h1>
-<p><strong>Title</strong>: Conference Matching Platform: Hybrid RAG and
-Semantic Retrieval<br />
-<strong>Authors</strong>: Xian Cao<br />
-<strong>Repository</strong>: <a
-href="https://github.com/xiancao2024/Conference-Matching-Platform">https://github.com/xiancao2024/Conference-Matching-Platform</a></p>
-<hr />
-<h2 id="objectives-and-introduction">1 Objectives and Introduction</h2>
-<p>The sheer volume of concurrent sessions and attendees at modern
-large-scale conferences makes it notoriously difficult for participants
-to navigate event schedules and build meaningful professional
-connections. This project builds a <strong>Retrieval-Augmented
-Generation (RAG) matching platform</strong> specifically designed to
-solve the conference discovery problem.</p>
-<p>Using entirely real-world event attendance data, the system
-successfully normalizes unstructured attendance logs into a relational
-schema containing attendee profiles and event sessions. By heavily
-indexing these entities, the platform runs a sophisticated
-<strong>hybrid matching pipeline</strong> combining traditional lexical
-keyword scoring with advanced semantic retrieval models (via Sentence
-Transformers and FAISS).</p>
-<p>The primary objective of this project is to demonstrate a
-production-ready, Program-Aided Language (PAL) style assistant that can
-natively understand natural language matchmaking queries, surface the
-most highly relevant attendees or sessions, and utilize generative LLMs
-to synthesize human-readable explanations validating why the system
-retrieved those specific results.</p>
-<h2 id="background-and-related-work">2 Background and Related Work</h2>
-<p><strong>Dataset Context</strong>: We rely on the public Kaggle Event
-Attendance Dataset (<code>cankatsrc/event-attendance-dataset</code>).
-This dataset provides a robust challenge because it consists of raw
-attendance CSV logs—capturing interactions rather than clean profiles.
-It contains fields such as <em>Event ID, Event Name, Location, Date
-&amp; Time, Attendee Name, Attendee Email,</em> and <em>Attendee
-Phone</em>. This dataset accurately mirrors the messy telemetry data
-corporate event organizers often possess, making it highly suitable for
-an end-to-end normalization and retrieval task.</p>
-<p><strong>Related Work</strong>: Modern open-domain QA heavily utilizes
-the Retrieval-Augmented Generation paradigm (Lewis et al., 2020;
-Karpukhin et al., 2020). However, traditional RAG focuses solely on
-retrieving text chunks to answer trivia or summarize documents. This
-project extends RAG principles into the domain of <strong>Program-Aided
-Language models (PAL)</strong> and <strong>Recommendation
-Systems</strong>. Rather than retrieving static paragraphs, the LLM
-orchestrates over a structured database of people and events, blending
-dense vector retrieval with deterministic attribute filtering.</p>
-<h2 id="approach-and-implementation">3 Approach and Implementation</h2>
-<h3 id="system-architecture-overview">System Architecture Overview</h3>
-<p>The platform was built following a robust three-stage data and
-retrieval pipeline: 1. <strong>Data Ingestion &amp;
-Normalization</strong>: The raw attendance rows are parsed and
-heuristically structured into a JSON-based conference schema. 2.
-<strong>Hybrid Retrieval Engine</strong>: A matcher combining BM25-style
-lexical keyword scoring and dense vector similarity embedding-backed by
-FAISS. 3. <strong>Generative UI layer</strong>: A web UI and
-programmatic agent that interprets user queries, executes the hybrid
-matcher, and generates contextual explanations using a locally hosted
-LLM (Ollama).</p>
-<h3 id="engineering-design-decisions">Engineering Design Decisions</h3>
-<ul>
-<li><strong>Conservative Heuristic Normalization</strong>: Since the CSV
-only contains emails and event names, we derive organization profiles
-heuristically from the email domain (filtering out generic providers
-like gmail.com). We further derive topical “sectors” via custom phrase
-and token mapping over the event titles.</li>
-<li><strong>Hybrid Ranking Strategy</strong>: Lexical token matching is
-excellent for specific names (e.g., “John Doe”), while semantic
-embedding matching (using <code>all-MiniLM-L6-v2</code>) is critical for
-conceptual queries (e.g., “AI and climate change”). We harmoniously
-combine keyword overlap, concept matching, and structured filtering to
-compute a joint relevance score.</li>
-<li><strong>Explainability</strong>: Instead of simply returning a list
-of links, the platform uses an LLM (Llama 3) to rerank the top
-candidates and append a one-sentence natural language rationale for the
-match, increasing user trust.</li>
-</ul>
-<h3 id="code-organization">Code Organization</h3>
-<ul>
-<li><code>conference_matching/kaggle_import.py</code> — The ETL pipeline
-bridging Kaggle CSVs directly to our structured JSON schema.</li>
-<li><code>conference_matching/engine.py</code> — Implements the lexical
-parsing, FAISS vector indexing, and hybrid ranker scoring
-functions.</li>
-<li><code>conference_matching/llm.py</code> — Handles the prompt
-engineering and structured JSON parsing to communicate with the local
-LLM.</li>
-</ul>
-<h2 id="data-and-data-analysis">4 Data and Data Analysis</h2>
-<p><strong>Data Source</strong>: - Kaggle Dataset URI: <a
-href="https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset">https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset</a></p>
-<p><strong>Exploratory Data Analysis</strong>: Through our import
-scripts, we normalize the raw tabular graph into unique entities. Our
-system automatically aggregates attendance counts to identify the most
-heavily trafficked event sessions, enabling popularity-based boosting
-during retrieval. We also clean edge-case variations in CSV column
-headers using hardcoded alias mapping logic in <code>data.py</code> to
-ensure high data integrity even if the upstream Kaggle dataset schema
-drifts.</p>
-<h2 id="results-and-evaluation">5 Results and Evaluation</h2>
-<h3 id="evaluation-methodology">Evaluation Methodology</h3>
-<p>Without manually labeled “perfect” recommendations for every query,
-we pioneered a <strong>weak-label evaluation harness</strong>. For each
-imported attendee, their known, historical session registrations are
-defined as the ground-truth “relevant” search items. We then simulate
-search queries on their behalf and measure whether our engine can
-retrieve the sessions they actually chose to attend. We compare our
-proposed Hybrid Matcher against a baseline Keyword-Only lexical
-matcher.</p>
-<h3 id="quantitative-results">Quantitative Results</h3>
-<p><em>(Based on a weak-label evaluation benchmark spanning 3 distinct
-query types)</em></p>
-<table>
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 22%" />
-<col style="width: 25%" />
-<col style="width: 31%" />
-</colgroup>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Hybrid Matcher</th>
-<th>Keyword Baseline</th>
-<th>Relative Improvement</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Precision@5</td>
-<td>0.20</td>
-<td>0.20</td>
-<td>0%</td>
-</tr>
-<tr>
-<td>Recall@5</td>
-<td>1.00</td>
-<td>1.00</td>
-<td>0%</td>
-</tr>
-<tr>
-<td><strong>nDCG@5</strong></td>
-<td><strong>1.00</strong></td>
-<td>0.54</td>
-<td><strong>+85%</strong></td>
-</tr>
-<tr>
-<td><strong>MRR</strong></td>
-<td><strong>1.00</strong></td>
-<td>0.39</td>
-<td><strong>+156%</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="analytical-narrative">Analytical Narrative</h3>
-<p>Both systems naturally achieve a high Recall@5 because the dataset is
-constrained, meaning both engines successfully surface the relevant
-session <em>somewhere</em> in the top 5 results.</p>
-<p>However, the ranking quality represents a massive leap forward. The
-hybrid system (utilizing Sentence Transformers via HuggingFace and
-FAISS) achieves perfect nDCG@5 and Mean Reciprocal Rank (MRR)—which
-means <strong>it ranks the single correct session at position #1 for
-every single query evaluated</strong>.</p>
-<p>The keyword-only baseline suffers from semantic mismatch (e.g.,
-failing to connect the query “machine learning” to a session titled
-“Neural Networks”), dragging its MRR down to 0.39. The hybrid approach’s
-156% relative improvement directly proves that blending dense embeddings
-with lexical keyword overlap is critical for high-fidelity conference
-matchmaking.</p>
-<h2 id="conclusions-and-future-work">6 Conclusions and Future Work</h2>
-<p>This implementation decisively proves that raw, flat attendance
-records can be systematically normalized into a rich entity graph
-suitable for state-of-the-art hybrid vector retrieval and RAG-driven
-orchestrations. The platform is highly practical for small-to-medium
-conferences, and serves as an excellent foundation for professional
-networking tools.</p>
-<p><strong>Future Directions</strong>: 1. <strong>Profile
-Enrichment</strong>: Automatically query external APIs (LinkedIn,
-Twitter) to scrape and enrich attendee profiles with their actual Job
-Titles, Companies, and self-authored biographies. 2.
-<strong>Bidirectional Matchmaking</strong>: Upgrade the system beyond
-search to become a proactive recommendation engine that actively
-proposes mutual double-opt-in meetings between attendees with
-complementary “Asks” and “Offers”. 3. <strong>Multi-Agent PAL</strong>:
-Integrate multiple specialized LLM agents (e.g., an LLM specialized in
-scheduling, and an LLM specialized in introductory email drafting)
-routing through LangChain to automate the entire meeting arrangement
-lifecycle.</p>
-<h2 id="submission-guidelines">7 Submission Guidelines</h2>
-<ul>
-<li><strong>PDF file</strong>: Included in the submission
-materials.</li>
-<li><strong>GCP Endpoint</strong>: <a
-href="http://34.169.130.58:8000">http://34.169.130.58:8000</a></li>
-<li><strong>Github URL</strong>: <a
-href="https://github.com/xiancao2024/Conference-Matching-Platform">https://github.com/xiancao2024/Conference-Matching-Platform</a></li>
-</ul>
-<hr />
-<h3 id="appendix-how-to-reproduce-locally">Appendix: How to reproduce
-locally</h3>
-<p><strong>1. Create virtual environment and install
-dependencies</strong></p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">.venv/bin/python</span> <span class="at">-m</span> pip install <span class="at">-r</span> requirements.txt</span></code></pre></div>
-<p><strong>2. Import the Kaggle dataset directly via
-Kagglehub</strong></p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install kagglehub</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> conference_matching.kaggle_import</span></code></pre></div>
-<p><strong>3. Start the Server</strong></p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> server.py</span></code></pre></div>
-<p><strong>4. Run complete evaluation suite</strong></p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> conference_matching.evaluation</span></code></pre></div>
-</body>
+      th, td {
+        border: 1px solid var(--border);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      ul, ol {
+        padding-left: 1.4rem;
+      }
+      a {
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>CS 6120 - Final Project Report</h1>
+    <p class="meta">
+      <strong>Title</strong>: Conference Matching Platform: Hybrid Retrieval over Real Attendance Data<br />
+      <strong>Authors</strong>: Xian Cao<br />
+      <strong>Repository</strong>:
+      <a href="https://github.com/xiancao2024/Conference-Matching-Platform">https://github.com/xiancao2024/Conference-Matching-Platform</a>
+    </p>
+
+    <hr />
+
+    <h2>1 Objectives and Introduction</h2>
+    <p>
+      Large conferences create two linked discovery problems: participants need help finding relevant sessions, and
+      they also need help identifying other attendees with overlapping interests. This project builds a conference
+      matching platform that works directly on real attendance logs instead of on curated profile cards.
+    </p>
+    <p>
+      The current system uses the public Kaggle Event Attendance Dataset
+      (<code>cankatsrc/event-attendance-dataset</code>). Raw CSV rows are normalized into a conference schema with
+      attendee entities and event/session entities. On top of that normalized data, the platform provides a hybrid
+      retrieval engine, a local web interface, weak-label evaluation, and an optional local LLM layer for
+      conversational responses and lightweight result explanations.
+    </p>
+    <p>
+      The main goal is practical retrieval: accept natural-language requests such as "find climate attendees" or
+      "show AI sessions", map them into a structured query, and rank the most relevant imported entities using
+      lexical, conceptual, structural, and optional embedding-based evidence.
+    </p>
+
+    <h2>2 Background and Related Work</h2>
+    <p>
+      <strong>Dataset context.</strong> The Kaggle dataset contains noisy operational records rather than curated user
+      profiles. Typical fields include event identifiers, event names, locations, timestamps, attendee names, emails,
+      and phone numbers. Useful matchmaking signals therefore have to be inferred from sparse event metadata.
+    </p>
+    <p>
+      <strong>Related work.</strong> The project is inspired by hybrid retrieval systems used in search and RAG
+      pipelines. Instead of retrieving document passages, this system retrieves structured entities representing
+      attendees and event resources. The implementation combines sparse lexical matching, concept expansion through a
+      small ontology, structured boosts, and optional dense retrieval with Sentence Transformers plus FAISS.
+    </p>
+
+    <h2>3 Approach and Implementation</h2>
+    <h3>3.1 Data ingestion and normalization</h3>
+    <p>
+      The import pipeline accepts a Kaggle zip file, a CSV file, or an extracted directory. It searches for the best
+      matching CSV using column alias rules, reads attendance rows, and writes a normalized JSON dataset.
+    </p>
+    <p>Normalization produces two entity types:</p>
+    <ul>
+      <li><strong>Attendees</strong>: role <code>participant</code>, with name, inferred organization, sector tags, asks/offers, and source events.</li>
+      <li><strong>Events</strong>: stored as <code>resource</code> entities with role <code>session</code>, with name, location, date metadata, attendee counts, and inferred topical sectors.</li>
+    </ul>
+    <p>
+      Several fields are derived heuristically: organization from email domains, sector tags from event metadata, and
+      short bios from attendance history. This keeps the pipeline robust even though the source dataset does not contain
+      explicit role labels or rich biographies.
+    </p>
+
+    <h3>3.2 Hybrid retrieval engine</h3>
+    <p>The matcher in <code>conference_matching/engine.py</code> scores entities with several signals:</p>
+    <ul>
+      <li>lexical similarity from TF-IDF-style cosine similarity over normalized tokens</li>
+      <li>concept similarity from ontology-driven phrase and token mappings</li>
+      <li>structured boosts for role fit, sector fit, stage fit, ask/offer overlap, and intent fit</li>
+      <li>optional dense similarity from <code>all-MiniLM-L6-v2</code> when local embeddings and FAISS are available</li>
+    </ul>
+    <p>
+      The final score is a weighted combination of lexical, concept, embedding, and structured components. For topical
+      people-search queries, the matcher also applies stricter topic and event-link filtering through the attendee
+      <code>source_events</code> field.
+    </p>
+
+    <h3>3.3 Query routing and web application</h3>
+    <p>
+      <code>conference_matching/server.py</code> provides a lightweight HTTP server and routes requests into four
+      modes: empty query, greeting/thanks, general question, and retrieval request.
+    </p>
+    <p>
+      General questions are answered through the optional local Ollama integration in
+      <code>conference_matching/llm.py</code>. Retrieval requests are converted into a structured query profile and
+      passed to the matcher. The browser client renders ranked session and attendee cards with short summaries.
+    </p>
+    <p>
+      The deterministic engine already produces rule-based explanations. If Ollama is available, the system also adds
+      an extra one-sentence <code>llm_reason</code> to top retrieved items, but retrieval itself does not depend on the
+      LLM.
+    </p>
+
+    <h3>3.4 Code organization</h3>
+    <ul>
+      <li><code>conference_matching/data.py</code>: dataset discovery, CSV loading, normalization, and dataset access</li>
+      <li><code>conference_matching/kaggle_import.py</code>: CLI entrypoint for import</li>
+      <li><code>conference_matching/ontology.py</code>: phrase/token concept mappings and role aliases</li>
+      <li><code>conference_matching/engine.py</code>: indexing, scoring, ranking, explanations, and keyword baseline</li>
+      <li><code>conference_matching/llm.py</code>: optional Ollama-based general answers and top-result explanations</li>
+      <li><code>conference_matching/evaluation.py</code>: weak-label benchmark construction and ranking metrics</li>
+      <li><code>conference_matching/server.py</code>: local API and static file server</li>
+    </ul>
+
+    <h2>4 Data and Analysis</h2>
+    <p>
+      <strong>Data source</strong>:
+      <a href="https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset">https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset</a>
+    </p>
+    <p>
+      The source data is intentionally limited. It tells us who attended which event, but not why they attended, what
+      role they play professionally, or what they are explicitly looking for. Because of that, the project leans on
+      conservative inference rather than aggressive enrichment.
+    </p>
+    <p>
+      The main analytical choices are to treat attendance as the strongest observed relation, infer topical sectors from
+      event metadata, and keep attendee and session entities in one searchable space.
+    </p>
+
+    <h2>5 Results and Evaluation</h2>
+    <h3>5.1 Evaluation methodology</h3>
+    <p>
+      The evaluation module builds weak labels directly from attendance history. Each attendee becomes a query, and the
+      sessions/events they are known to have attended become the relevant set. The system compares the full hybrid
+      matcher against a keyword-only baseline using Precision@5, Recall@5, nDCG@5, and Mean Reciprocal Rank (MRR).
+    </p>
+
+    <h3>5.2 Quantitative results</h3>
+    <p>The repository includes an evaluation snapshot in <code>eval_output.json</code> for a 3-query benchmark fixture:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Hybrid Matcher</th>
+          <th>Keyword Baseline</th>
+          <th>Relative Improvement</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Precision@5</td><td>0.20</td><td>0.20</td><td>0%</td></tr>
+        <tr><td>Recall@5</td><td>1.00</td><td>1.00</td><td>0%</td></tr>
+        <tr><td>nDCG@5</td><td>1.0000</td><td>0.5436</td><td>+83.9%</td></tr>
+        <tr><td>MRR</td><td>1.0000</td><td>0.3889</td><td>+157.1%</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 Interpretation</h3>
+    <p>
+      Both systems reach perfect Recall@5 on this small fixture because the relevant event is usually somewhere in the
+      top five results. The more meaningful difference is ranking quality: the hybrid system consistently places the
+      relevant event first, while the keyword baseline often ranks the attendee record itself above the matching event.
+    </p>
+    <p>
+      That pattern matches the current implementation. The hybrid system benefits from concept expansion, structured
+      intent scoring, and optional dense similarity, while the keyword baseline only sees surface token overlap.
+    </p>
+
+    <h2>6 Limitations and Future Work</h2>
+    <p>The project still inherits strong limits from the source dataset:</p>
+    <ul>
+      <li>attendee roles are inferred heuristically rather than observed directly</li>
+      <li>asks/offers are synthetic placeholders derived from attendance context</li>
+      <li>quality depends on topic mappings in the ontology and on event naming quality</li>
+      <li>embedding support is optional and depends on local model/index availability</li>
+    </ul>
+    <p>Promising next steps are:</p>
+    <ol>
+      <li>add richer benchmark sets with manually judged relevance, not only weak labels</li>
+      <li>distinguish more event types and attendee intents beyond the current participant/session framing</li>
+      <li>expose score breakdowns and evaluation views directly in the UI</li>
+      <li>add safer profile enrichment pipelines only where external evidence is explicit</li>
+    </ol>
+
+    <h2>7 Reproducibility and Submission Info</h2>
+    <ul>
+      <li><strong>GCP Endpoint</strong>: <a href="http://34.169.130.58:8000">http://34.169.130.58:8000</a></li>
+      <li><strong>GitHub URL</strong>: <a href="https://github.com/xiancao2024/Conference-Matching-Platform">https://github.com/xiancao2024/Conference-Matching-Platform</a></li>
+    </ul>
+
+    <h3>Local reproduction</h3>
+    <p><strong>1. Create a virtual environment and install dependencies</strong></p>
+    <pre><code>python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt</code></pre>
+
+    <p><strong>2. Import the Kaggle dataset</strong></p>
+    <pre><code>python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip</code></pre>
+
+    <p>Or, if using <code>kagglehub</code>:</p>
+    <pre><code>.venv/bin/python -m pip install kagglehub
+.venv/bin/python -m conference_matching.kaggle_import</code></pre>
+
+    <p><strong>3. Start the server</strong></p>
+    <pre><code>.venv/bin/python server.py</code></pre>
+
+    <p><strong>4. Run evaluation</strong></p>
+    <pre><code>.venv/bin/python -m conference_matching.evaluation</code></pre>
+
+    <p><strong>5. Run tests</strong></p>
+    <pre><code>.venv/bin/python -m unittest discover -s tests</code></pre>
+  </body>
 </html>

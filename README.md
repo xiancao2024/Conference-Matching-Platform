@@ -111,16 +111,7 @@ Or use the helper script:
 If you want to point the app at a specific normalized JSON instead of `data/conference_kaggle.json`:
 
 ```bash
-CONFERENCE_DATA_PATH=/path/to/conference_kaggle.json python3 server.py
-```
-
-## Run on GCP
-
-If your GCP VM is already created, the simplest deployment path is:
-
-1. SSH into the VM.
-2. Clone or copy this repo onto the VM.
-3. Create the virtual environment and install `kagglehub` if you want the VM to download the dataset directly.
+u3. Create the virtual environment and install `kagglehub` if you want the VM to download the dataset directly.
 4. Import the dataset.
 5. Start the app on `0.0.0.0`.
 6. Open the VM firewall for the app port, or use SSH port forwarding.
@@ -181,6 +172,16 @@ Run the tests with:
 ```bash
 python3 -m unittest discover -s tests
 ```
+
+If your system Python blocks installs (PEP 668), use a venv and install dependencies first (same as on a VM):
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+`test_llm_explanations.py` runs without Ollama. Engine and retrieval-filter tests require `numpy` (and the rest of `requirements.txt` for the matcher).
 
 ## Important limitation
 

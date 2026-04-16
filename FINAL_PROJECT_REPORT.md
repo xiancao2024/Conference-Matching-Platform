@@ -1,112 +1,181 @@
-# CS 6120 — Final Project Report
+# CS 6120 - Final Project Report
 
-**Title**: Conference Matching Platform: Hybrid RAG and Semantic Retrieval  
+**Title**: Conference Matching Platform: Hybrid Retrieval over Real Attendance Data  
 **Authors**: Xian Cao  
-**Repository**: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)  
+**Repository**: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)
 
 ---
 
 ## 1 Objectives and Introduction
 
-The sheer volume of concurrent sessions and attendees at modern large-scale conferences makes it notoriously difficult for participants to navigate event schedules and build meaningful professional connections. This project builds a **Retrieval-Augmented Generation (RAG) matching platform** specifically designed to solve the conference discovery problem. 
+Large conferences create two linked discovery problems: participants need help finding relevant sessions, and they also need help identifying other attendees with overlapping interests. This project builds a conference matching platform that works directly on real attendance logs instead of on hand-authored profile cards.
 
-Using entirely real-world event attendance data, the system successfully normalizes unstructured attendance logs into a relational schema containing attendee profiles and event sessions. By heavily indexing these entities, the platform runs a sophisticated **hybrid matching pipeline** combining traditional lexical keyword scoring with advanced semantic retrieval models (via Sentence Transformers and FAISS). 
+The current system is centered on the public Kaggle Event Attendance Dataset (`cankatsrc/event-attendance-dataset`). Raw CSV rows are normalized into a conference schema with attendee entities and event/session entities. On top of that normalized data, the platform provides a hybrid retrieval engine, a local web interface, weak-label evaluation, and an optional local LLM layer for conversational responses and lightweight result explanations.
 
-The primary objective of this project is to demonstrate a production-ready, Program-Aided Language (PAL) style assistant that can natively understand natural language matchmaking queries, surface the most highly relevant attendees or sessions, and utilize generative LLMs to synthesize human-readable explanations validating why the system retrieved those specific results.
+The main goal is practical rather than purely generative: accept natural-language requests such as "find climate attendees" or "show AI sessions", map them into a retrieval query, and rank the most relevant imported entities using lexical, conceptual, structural, and optional embedding-based evidence.
 
 ## 2 Background and Related Work
 
-**Dataset Context**: We rely on the public Kaggle Event Attendance Dataset (`cankatsrc/event-attendance-dataset`). This dataset provides a robust challenge because it consists of raw attendance CSV logs—capturing interactions rather than clean profiles. It contains fields such as *Event ID, Event Name, Location, Date & Time, Attendee Name, Attendee Email,* and *Attendee Phone*. This dataset accurately mirrors the messy telemetry data corporate event organizers often possess, making it highly suitable for an end-to-end normalization and retrieval task.
+**Dataset context.** The Kaggle Event Attendance Dataset contains noisy operational records rather than curated user profiles. Typical fields include event identifiers, event names, locations, timestamps, attendee names, emails, and phone numbers. This makes the task interesting because useful matchmaking signals must be inferred from sparse event metadata rather than read from rich biographies.
 
-**Related Work**: Modern open-domain QA heavily utilizes the Retrieval-Augmented Generation paradigm (Lewis et al., 2020; Karpukhin et al., 2020). However, traditional RAG focuses solely on retrieving text chunks to answer trivia or summarize documents. This project extends RAG principles into the domain of **Program-Aided Language models (PAL)** and **Recommendation Systems**. Rather than retrieving static paragraphs, the LLM orchestrates over a structured database of people and events, blending dense vector retrieval with deterministic attribute filtering. 
+**Related work.** The project is inspired by hybrid retrieval systems used in modern search and RAG pipelines. Instead of retrieving document passages for question answering, this system retrieves structured entities representing attendees and event resources. The implementation combines sparse lexical matching, concept expansion through a small ontology, structured boosts, and optional dense retrieval with Sentence Transformers plus FAISS.
 
 ## 3 Approach and Implementation
 
-### System Architecture Overview
-The platform was built following a robust three-stage data and retrieval pipeline:
-1. **Data Ingestion & Normalization**: The raw attendance rows are parsed and heuristically structured into a JSON-based conference schema. 
-2. **Hybrid Retrieval Engine**: A matcher combining BM25-style lexical keyword scoring and dense vector similarity embedding-backed by FAISS.
-3. **Generative UI layer**: A web UI and programmatic agent that interprets user queries, executes the hybrid matcher, and generates contextual explanations using a locally hosted LLM (Ollama).
+### 3.1 Data ingestion and normalization
 
-### Engineering Design Decisions
-- **Conservative Heuristic Normalization**: Since the CSV only contains emails and event names, we derive organization profiles heuristically from the email domain (filtering out generic providers like gmail.com). We further derive topical "sectors" via custom phrase and token mapping over the event titles.
-- **Hybrid Ranking Strategy**: Lexical token matching is excellent for specific names (e.g., "John Doe"), while semantic embedding matching (using `all-MiniLM-L6-v2`) is critical for conceptual queries (e.g., "AI and climate change"). We harmoniously combine keyword overlap, concept matching, and structured filtering to compute a joint relevance score.
-- **Explainability**: Instead of simply returning a list of links, the platform uses an LLM (Llama 3) to rerank the top candidates and append a one-sentence natural language rationale for the match, increasing user trust.
+The import pipeline accepts a Kaggle zip file, a CSV file, or an extracted directory. It searches for the best matching CSV using column alias rules, reads attendance rows, and writes a normalized JSON dataset.
 
-### Code Organization
-- `conference_matching/kaggle_import.py` — The ETL pipeline bridging Kaggle CSVs directly to our structured JSON schema.
-- `conference_matching/engine.py` — Implements the lexical parsing, FAISS vector indexing, and hybrid ranker scoring functions.
-- `conference_matching/llm.py` — Handles the prompt engineering and structured JSON parsing to communicate with the local LLM.
+Normalization produces two entity types:
 
-## 4 Data and Data Analysis
+- **Attendees**: role `participant`, with name, inferred organization, sector tags, asks/offers, and the list of source events they attended.
+- **Events**: stored as `resource` entities with role `session`, with name, location, date metadata, attendee counts, and inferred topical sectors.
 
-**Data Source**: 
-- Kaggle Dataset URI: [https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset](https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset)
+Several fields are derived heuristically:
 
-**Exploratory Data Analysis**:
-Through our import scripts, we normalize the raw tabular graph into unique entities. Our system automatically aggregates attendance counts to identify the most heavily trafficked event sessions, enabling popularity-based boosting during retrieval. We also clean edge-case variations in CSV column headers using hardcoded alias mapping logic in `data.py` to ensure high data integrity even if the upstream Kaggle dataset schema drifts.
+- organization is inferred from email domains
+- sectors and tags are inferred from event names and locations through phrase and token mappings
+- attendee bios and event bios are synthesized from imported attendance history
+
+This design keeps the pipeline robust even though the source dataset does not contain explicit founder/investor labels or rich self-descriptions.
+
+### 3.2 Hybrid retrieval engine
+
+The matcher in `conference_matching/engine.py` builds an index over normalized entities and scores them with several signals:
+
+- **Lexical similarity**: TF-IDF-style cosine similarity over normalized tokens
+- **Concept similarity**: ontology-driven concept overlap, such as mapping "health AI" to healthcare and AI concepts
+- **Structured score**: boosts for role fit, sector fit, stage fit, ask/offer overlap, and intent fit
+- **Optional embedding score**: dense similarity from `all-MiniLM-L6-v2` when local embeddings and FAISS are available
+
+The final score is a weighted combination of lexical, concept, embedding, and structured components. For topical people-search queries, the matcher also applies a stricter filter: if the user is searching for people and mentions explicit topics/events, attendees must show topic evidence and, in some cases, event-link evidence through their `source_events`.
+
+The system also exposes a keyword-only baseline used for evaluation.
+
+### 3.3 Query routing and web application
+
+`conference_matching/server.py` provides a lightweight HTTP server and routes requests into four modes:
+
+- empty query
+- greeting/thanks
+- general question
+- retrieval request
+
+General questions are answered through the optional local Ollama integration in `conference_matching/llm.py`. Retrieval requests are converted into a structured query profile and passed to the matcher. The browser client then renders ranked session and attendee cards with short summaries.
+
+An important implementation detail is that the deterministic engine already produces rule-based explanations. If Ollama is available, the system also adds an extra one-sentence `llm_reason` to the top retrieved items, but retrieval itself does not depend on the LLM.
+
+### 3.4 Code organization
+
+- `conference_matching/data.py`: dataset discovery, CSV loading, normalization, and dataset access
+- `conference_matching/kaggle_import.py`: CLI entrypoint for import
+- `conference_matching/ontology.py`: phrase/token concept mappings and role aliases
+- `conference_matching/engine.py`: indexing, scoring, ranking, explanations, and keyword baseline
+- `conference_matching/llm.py`: optional Ollama-based general answers and top-result explanations
+- `conference_matching/evaluation.py`: weak-label benchmark construction and ranking metrics
+- `conference_matching/server.py`: local API and static file server
+
+## 4 Data and Analysis
+
+**Data source**:
+
+- Kaggle: [https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset](https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset)
+
+The source data is intentionally limited. It tells us who attended which event, but not why they attended, what role they play professionally, or what they are explicitly looking for. Because of that, the project leans on conservative inference rather than aggressive hallucinated enrichment.
+
+The main analytical choices are:
+
+- treat attendance as the strongest observed relation in the dataset
+- infer topical sectors from event metadata rather than from nonexistent biographies
+- keep all entities in one searchable space so attendee and session results can be ranked together
+
+This makes the project a good example of retrieval over weakly structured real data rather than over idealized benchmark data.
 
 ## 5 Results and Evaluation
 
-### Evaluation Methodology
-Without manually labeled "perfect" recommendations for every query, we pioneered a **weak-label evaluation harness**. 
-For each imported attendee, their known, historical session registrations are defined as the ground-truth "relevant" search items. We then simulate search queries on their behalf and measure whether our engine can retrieve the sessions they actually chose to attend. We compare our proposed Hybrid Matcher against a baseline Keyword-Only lexical matcher.
+### 5.1 Evaluation methodology
 
-### Quantitative Results 
+The evaluation module builds weak labels directly from attendance history. Each attendee becomes a query, and the sessions/events they are known to have attended become the relevant set. The system then compares:
 
-*(Based on a weak-label evaluation benchmark spanning 3 distinct query types)*
+- the full hybrid matcher
+- a keyword-only baseline
 
-| Metric       | Hybrid Matcher | Keyword Baseline | Relative Improvement |
-|--------------|----------------|------------------|----------------------|
-| Precision@5  | 0.20           | 0.20             | 0%                   |
-| Recall@5     | 1.00           | 1.00             | 0%                   |
-| **nDCG@5**   | **1.00**       | 0.54             | **+85%**             |
-| **MRR**      | **1.00**       | 0.39             | **+156%**            |
+Metrics reported are Precision@5, Recall@5, nDCG@5, and Mean Reciprocal Rank (MRR).
 
-### Analytical Narrative
-Both systems naturally achieve a high Recall@5 because the dataset is constrained, meaning both engines successfully surface the relevant session *somewhere* in the top 5 results. 
+### 5.2 Quantitative results
 
-However, the ranking quality represents a massive leap forward. The hybrid system (utilizing Sentence Transformers via HuggingFace and FAISS) achieves perfect nDCG@5 and Mean Reciprocal Rank (MRR)—which means **it ranks the single correct session at position #1 for every single query evaluated**. 
+The repository already includes an evaluation snapshot in `eval_output.json` for a 3-query benchmark fixture:
 
-The keyword-only baseline suffers from semantic mismatch (e.g., failing to connect the query "machine learning" to a session titled "Neural Networks"), dragging its MRR down to 0.39. The hybrid approach's 156% relative improvement directly proves that blending dense embeddings with lexical keyword overlap is critical for high-fidelity conference matchmaking.
+| Metric | Hybrid Matcher | Keyword Baseline | Relative Improvement |
+| --- | --- | --- | --- |
+| Precision@5 | 0.20 | 0.20 | 0% |
+| Recall@5 | 1.00 | 1.00 | 0% |
+| nDCG@5 | 1.0000 | 0.5436 | +83.9% |
+| MRR | 1.0000 | 0.3889 | +157.1% |
 
-## 6 Conclusions and Future Work
+### 5.3 Interpretation
 
-This implementation decisively proves that raw, flat attendance records can be systematically normalized into a rich entity graph suitable for state-of-the-art hybrid vector retrieval and RAG-driven orchestrations. The platform is highly practical for small-to-medium conferences, and serves as an excellent foundation for professional networking tools.
+Both systems reach perfect Recall@5 on this small fixture because the relevant event is usually somewhere in the top five results. The more meaningful difference is ranking quality: the hybrid system consistently places the relevant event first, while the keyword baseline often ranks the attendee record itself above the matching event.
 
-**Future Directions**:
-1. **Profile Enrichment**: Automatically query external APIs (LinkedIn, Twitter) to scrape and enrich attendee profiles with their actual Job Titles, Companies, and self-authored biographies.
-2. **Bidirectional Matchmaking**: Upgrade the system beyond search to become a proactive recommendation engine that actively proposes mutual double-opt-in meetings between attendees with complementary "Asks" and "Offers".
-3. **Multi-Agent PAL**: Integrate multiple specialized LLM agents (e.g., an LLM specialized in scheduling, and an LLM specialized in introductory email drafting) routing through LangChain to automate the entire meeting arrangement lifecycle.
+That pattern matches the current implementation. The hybrid model benefits from concept expansion, structured intent scoring, and optional dense similarity, while the keyword baseline only sees surface token overlap.
 
-## 7 Submission Guidelines
+## 6 Limitations and Future Work
 
-- **PDF file**: Included in the submission materials.
+The project still inherits strong limits from the source dataset:
+
+- attendee roles are inferred heuristically rather than observed directly
+- asks/offers are synthetic placeholders derived from attendance context
+- quality depends on topic mappings in the ontology and on event naming quality
+- embedding support is optional and depends on local model/index availability
+
+Promising next steps are:
+
+1. Add richer benchmark sets with manually judged relevance, not only weak labels.
+2. Distinguish more event types and attendee intents beyond the current participant/session framing.
+3. Expand the frontend to expose score breakdowns and evaluation views directly in the UI.
+4. Add safer profile enrichment pipelines only where external evidence is explicit and attributable.
+
+## 7 Reproducibility and Submission Info
+
 - **GCP Endpoint**: [http://34.169.130.58:8000](http://34.169.130.58:8000)
-- **Github URL**: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)
+- **GitHub URL**: [https://github.com/xiancao2024/Conference-Matching-Platform](https://github.com/xiancao2024/Conference-Matching-Platform)
 
----
+### Local reproduction
 
-### Appendix: How to reproduce locally
+**1. Create a virtual environment and install dependencies**
 
-**1. Create virtual environment and install dependencies**
 ```bash
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-**2. Import the Kaggle dataset directly via Kagglehub**
+**2. Import the Kaggle dataset**
+
 ```bash
-pip install kagglehub
-python3 -m conference_matching.kaggle_import
+python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
 ```
 
-**3. Start the Server**
+Or, if using `kagglehub`:
+
 ```bash
-python3 server.py
+.venv/bin/python -m pip install kagglehub
+.venv/bin/python -m conference_matching.kaggle_import
 ```
 
-**4. Run complete evaluation suite**
+**3. Start the server**
+
 ```bash
-python3 -m conference_matching.evaluation
+.venv/bin/python server.py
+```
+
+**4. Run evaluation**
+
+```bash
+.venv/bin/python -m conference_matching.evaluation
+```
+
+**5. Run tests**
+
+```bash
+.venv/bin/python -m unittest discover -s tests
 ```

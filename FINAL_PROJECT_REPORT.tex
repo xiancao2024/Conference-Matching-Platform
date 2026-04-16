@@ -1,369 +1,185 @@
-% Options for packages loaded elsewhere
-\PassOptionsToPackage{unicode}{hyperref}
-\PassOptionsToPackage{hyphens}{url}
-\documentclass[
-]{article}
-\usepackage{xcolor}
-\usepackage{amsmath,amssymb}
-\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\usepackage{iftex}
-\ifPDFTeX
-  \usepackage[T1]{fontenc}
-  \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provide euro and other symbols
-\else % if luatex or xetex
-  \usepackage{unicode-math} % this also loads fontspec
-  \defaultfontfeatures{Scale=MatchLowercase}
-  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-\usepackage{lmodern}
-\ifPDFTeX\else
-  % xetex/luatex font selection
-\fi
-% Use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-\IfFileExists{microtype.sty}{% use microtype if available
-  \usepackage[]{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
-\makeatletter
-\@ifundefined{KOMAClassName}{% if non-KOMA class
-  \IfFileExists{parskip.sty}{%
-    \usepackage{parskip}
-  }{% else
-    \setlength{\parindent}{0pt}
-    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
-}{% if KOMA class
-  \KOMAoptions{parskip=half}}
-\makeatother
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\newenvironment{Shaded}{}{}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\ExtensionTok}[1]{#1}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
-\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{#1}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
-\newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\usepackage{longtable,booktabs,array}
-\newcounter{none} % for unnumbered tables
-\usepackage{calc} % for calculating minipage widths
-% Correct order of tables after \paragraph or \subparagraph
-\usepackage{etoolbox}
-\makeatletter
-\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
-\makeatother
-% Allow footnotes in longtable head/foot
-\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
-\makesavenoteenv{longtable}
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\usepackage{bookmark}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same}
-\hypersetup{
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\geometry{margin=1in}
 
-\author{}
+\title{CS 6120 Final Project Report\\Conference Matching Platform: Hybrid Retrieval over Real Attendance Data}
+\author{Xian Cao}
 \date{}
 
 \begin{document}
+\maketitle
 
-\section{CS 6120 --- Final Project
-Report}\label{cs-6120-final-project-report}
+\noindent\textbf{Repository}: \url{https://github.com/xiancao2024/Conference-Matching-Platform}
 
-\textbf{Title}: Conference Matching Platform: Hybrid RAG and Semantic
-Retrieval\\
-\textbf{Authors}: Xian Cao\\
-\textbf{Repository}:
-\url{https://github.com/xiancao2024/Conference-Matching-Platform}
+\section{Objectives and Introduction}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+Large conferences create two linked discovery problems: participants need help finding relevant sessions, and they also need help identifying other attendees with overlapping interests. This project builds a conference matching platform that works directly on real attendance logs instead of on curated profile cards.
 
-\subsection{1 Objectives and
-Introduction}\label{objectives-and-introduction}
+The current system uses the public Kaggle Event Attendance Dataset (\texttt{cankatsrc/event-attendance-dataset}). Raw CSV rows are normalized into a conference schema with attendee entities and event/session entities. On top of that normalized data, the platform provides a hybrid retrieval engine, a local web interface, weak-label evaluation, and an optional local LLM layer for conversational responses and lightweight result explanations.
 
-The sheer volume of concurrent sessions and attendees at modern
-large-scale conferences makes it notoriously difficult for participants
-to navigate event schedules and build meaningful professional
-connections. This project builds a \textbf{Retrieval-Augmented
-Generation (RAG) matching platform} specifically designed to solve the
-conference discovery problem.
+The main goal is practical retrieval: accept natural-language requests such as ``find climate attendees'' or ``show AI sessions'', map them into a structured query, and rank the most relevant imported entities using lexical, conceptual, structural, and optional embedding-based evidence.
 
-Using entirely real-world event attendance data, the system successfully
-normalizes unstructured attendance logs into a relational schema
-containing attendee profiles and event sessions. By heavily indexing
-these entities, the platform runs a sophisticated \textbf{hybrid
-matching pipeline} combining traditional lexical keyword scoring with
-advanced semantic retrieval models (via Sentence Transformers and
-FAISS).
+\section{Background and Related Work}
 
-The primary objective of this project is to demonstrate a
-production-ready, Program-Aided Language (PAL) style assistant that can
-natively understand natural language matchmaking queries, surface the
-most highly relevant attendees or sessions, and utilize generative LLMs
-to synthesize human-readable explanations validating why the system
-retrieved those specific results.
+\textbf{Dataset context.} The Kaggle dataset contains noisy operational records rather than curated user profiles. Typical fields include event identifiers, event names, locations, timestamps, attendee names, emails, and phone numbers. Useful matchmaking signals therefore have to be inferred from sparse event metadata.
 
-\subsection{2 Background and Related
-Work}\label{background-and-related-work}
+\textbf{Related work.} The project is inspired by hybrid retrieval systems used in search and RAG pipelines. Instead of retrieving document passages, this system retrieves structured entities representing attendees and event resources. The implementation combines sparse lexical matching, concept expansion through a small ontology, structured boosts, and optional dense retrieval with Sentence Transformers plus FAISS.
 
-\textbf{Dataset Context}: We rely on the public Kaggle Event Attendance
-Dataset (\texttt{cankatsrc/event-attendance-dataset}). This dataset
-provides a robust challenge because it consists of raw attendance CSV
-logs---capturing interactions rather than clean profiles. It contains
-fields such as \emph{Event ID, Event Name, Location, Date \& Time,
-Attendee Name, Attendee Email,} and \emph{Attendee Phone}. This dataset
-accurately mirrors the messy telemetry data corporate event organizers
-often possess, making it highly suitable for an end-to-end normalization
-and retrieval task.
+\section{Approach and Implementation}
 
-\textbf{Related Work}: Modern open-domain QA heavily utilizes the
-Retrieval-Augmented Generation paradigm (Lewis et al., 2020; Karpukhin
-et al., 2020). However, traditional RAG focuses solely on retrieving
-text chunks to answer trivia or summarize documents. This project
-extends RAG principles into the domain of \textbf{Program-Aided Language
-models (PAL)} and \textbf{Recommendation Systems}. Rather than
-retrieving static paragraphs, the LLM orchestrates over a structured
-database of people and events, blending dense vector retrieval with
-deterministic attribute filtering.
+\subsection{Data ingestion and normalization}
 
-\subsection{3 Approach and
-Implementation}\label{approach-and-implementation}
+The import pipeline accepts a Kaggle zip file, a CSV file, or an extracted directory. It searches for the best matching CSV using column alias rules, reads attendance rows, and writes a normalized JSON dataset.
 
-\subsubsection{System Architecture
-Overview}\label{system-architecture-overview}
-
-The platform was built following a robust three-stage data and retrieval
-pipeline: 1. \textbf{Data Ingestion \& Normalization}: The raw
-attendance rows are parsed and heuristically structured into a
-JSON-based conference schema. 2. \textbf{Hybrid Retrieval Engine}: A
-matcher combining BM25-style lexical keyword scoring and dense vector
-similarity embedding-backed by FAISS. 3. \textbf{Generative UI layer}: A
-web UI and programmatic agent that interprets user queries, executes the
-hybrid matcher, and generates contextual explanations using a locally
-hosted LLM (Ollama).
-
-\subsubsection{Engineering Design
-Decisions}\label{engineering-design-decisions}
+Normalization produces two entity types:
 
 \begin{itemize}
-\tightlist
-\item
-  \textbf{Conservative Heuristic Normalization}: Since the CSV only
-  contains emails and event names, we derive organization profiles
-  heuristically from the email domain (filtering out generic providers
-  like gmail.com). We further derive topical ``sectors'' via custom
-  phrase and token mapping over the event titles.
-\item
-  \textbf{Hybrid Ranking Strategy}: Lexical token matching is excellent
-  for specific names (e.g., ``John Doe''), while semantic embedding
-  matching (using \texttt{all-MiniLM-L6-v2}) is critical for conceptual
-  queries (e.g., ``AI and climate change''). We harmoniously combine
-  keyword overlap, concept matching, and structured filtering to compute
-  a joint relevance score.
-\item
-  \textbf{Explainability}: Instead of simply returning a list of links,
-  the platform uses an LLM (Llama 3) to rerank the top candidates and
-  append a one-sentence natural language rationale for the match,
-  increasing user trust.
+\item \textbf{Attendees}: role \texttt{participant}, with name, inferred organization, sector tags, asks/offers, and the list of source events they attended.
+\item \textbf{Events}: stored as \texttt{resource} entities with role \texttt{session}, with name, location, date metadata, attendee counts, and inferred topical sectors.
 \end{itemize}
 
-\subsubsection{Code Organization}\label{code-organization}
+Several fields are derived heuristically: organization from email domains, sector tags from event metadata, and short bios from attendance history. This design keeps the pipeline robust even though the source dataset does not contain explicit role labels or rich biographies.
+
+\subsection{Hybrid retrieval engine}
+
+The matcher in \texttt{conference\_matching/engine.py} scores entities with several signals:
 
 \begin{itemize}
-\tightlist
-\item
-  \texttt{conference\_matching/kaggle\_import.py} --- The ETL pipeline
-  bridging Kaggle CSVs directly to our structured JSON schema.
-\item
-  \texttt{conference\_matching/engine.py} --- Implements the lexical
-  parsing, FAISS vector indexing, and hybrid ranker scoring functions.
-\item
-  \texttt{conference\_matching/llm.py} --- Handles the prompt
-  engineering and structured JSON parsing to communicate with the local
-  LLM.
+\item lexical similarity from TF-IDF-style cosine similarity over normalized tokens
+\item concept similarity from ontology-driven phrase and token mappings
+\item structured boosts for role fit, sector fit, stage fit, ask/offer overlap, and intent fit
+\item optional dense similarity from \texttt{all-MiniLM-L6-v2} when local embeddings and FAISS are available
 \end{itemize}
 
-\subsection{4 Data and Data Analysis}\label{data-and-data-analysis}
+The final score is a weighted combination of lexical, concept, embedding, and structured components. For topical people-search queries, the matcher also applies stricter topic and event-link filtering through the attendee \texttt{source\_events} field.
 
-\textbf{Data Source}: - Kaggle Dataset URI:
-\url{https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset}
+\subsection{Query routing and web application}
 
-\textbf{Exploratory Data Analysis}: Through our import scripts, we
-normalize the raw tabular graph into unique entities. Our system
-automatically aggregates attendance counts to identify the most heavily
-trafficked event sessions, enabling popularity-based boosting during
-retrieval. We also clean edge-case variations in CSV column headers
-using hardcoded alias mapping logic in \texttt{data.py} to ensure high
-data integrity even if the upstream Kaggle dataset schema drifts.
+\texttt{conference\_matching/server.py} provides a lightweight HTTP server and routes requests into four modes: empty query, greeting/thanks, general question, and retrieval request.
 
-\subsection{5 Results and Evaluation}\label{results-and-evaluation}
+General questions are answered through the optional local Ollama integration in \texttt{conference\_matching/llm.py}. Retrieval requests are converted into a structured query profile and passed to the matcher. The browser client renders ranked session and attendee cards with short summaries.
 
-\subsubsection{Evaluation Methodology}\label{evaluation-methodology}
+The deterministic engine already produces rule-based explanations. If Ollama is available, the system also adds an extra one-sentence \texttt{llm\_reason} to top retrieved items, but retrieval itself does not depend on the LLM.
 
-Without manually labeled ``perfect'' recommendations for every query, we
-pioneered a \textbf{weak-label evaluation harness}. For each imported
-attendee, their known, historical session registrations are defined as
-the ground-truth ``relevant'' search items. We then simulate search
-queries on their behalf and measure whether our engine can retrieve the
-sessions they actually chose to attend. We compare our proposed Hybrid
-Matcher against a baseline Keyword-Only lexical matcher.
+\subsection{Code organization}
 
-\subsubsection{Quantitative Results}\label{quantitative-results}
+\begin{itemize}
+\item \texttt{conference\_matching/data.py}: dataset discovery, CSV loading, normalization, and dataset access
+\item \texttt{conference\_matching/kaggle\_import.py}: CLI entrypoint for import
+\item \texttt{conference\_matching/ontology.py}: phrase/token concept mappings and role aliases
+\item \texttt{conference\_matching/engine.py}: indexing, scoring, ranking, explanations, and keyword baseline
+\item \texttt{conference\_matching/llm.py}: optional Ollama-based general answers and top-result explanations
+\item \texttt{conference\_matching/evaluation.py}: weak-label benchmark construction and ranking metrics
+\item \texttt{conference\_matching/server.py}: local API and static file server
+\end{itemize}
 
-\emph{(Based on a weak-label evaluation benchmark spanning 3 distinct
-query types)}
+\section{Data and Analysis}
 
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2286}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2571}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3143}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Metric
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Hybrid Matcher
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Keyword Baseline
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Relative Improvement
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\textbf{Data source}: \url{https://www.kaggle.com/datasets/cankatsrc/event-attendance-dataset}
+
+The source data is intentionally limited. It tells us who attended which event, but not why they attended, what role they play professionally, or what they are explicitly looking for. Because of that, the project leans on conservative inference rather than aggressive enrichment.
+
+The main analytical choices are to treat attendance as the strongest observed relation, infer topical sectors from event metadata, and keep attendee and session entities in one searchable space.
+
+\section{Results and Evaluation}
+
+\subsection{Evaluation methodology}
+
+The evaluation module builds weak labels directly from attendance history. Each attendee becomes a query, and the sessions/events they are known to have attended become the relevant set. The system compares the full hybrid matcher against a keyword-only baseline using Precision@5, Recall@5, nDCG@5, and Mean Reciprocal Rank (MRR).
+
+\subsection{Quantitative results}
+
+The repository includes an evaluation snapshot in \texttt{eval\_output.json} for a 3-query benchmark fixture:
+
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.24\linewidth} >{\raggedright\arraybackslash}p{0.2\linewidth} >{\raggedright\arraybackslash}p{0.22\linewidth} >{\raggedright\arraybackslash}p{0.24\linewidth}}
+\toprule
+Metric & Hybrid Matcher & Keyword Baseline & Relative Improvement \\
+\midrule
 Precision@5 & 0.20 & 0.20 & 0\% \\
 Recall@5 & 1.00 & 1.00 & 0\% \\
-\textbf{nDCG@5} & \textbf{1.00} & 0.54 & \textbf{+85\%} \\
-\textbf{MRR} & \textbf{1.00} & 0.39 & \textbf{+156\%} \\
-\end{longtable}
-}
+nDCG@5 & 1.0000 & 0.5436 & +83.9\% \\
+MRR & 1.0000 & 0.3889 & +157.1\% \\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\subsubsection{Analytical Narrative}\label{analytical-narrative}
+\subsection{Interpretation}
 
-Both systems naturally achieve a high Recall@5 because the dataset is
-constrained, meaning both engines successfully surface the relevant
-session \emph{somewhere} in the top 5 results.
+Both systems reach perfect Recall@5 on this small fixture because the relevant event is usually somewhere in the top five results. The more meaningful difference is ranking quality: the hybrid system consistently places the relevant event first, while the keyword baseline often ranks the attendee record itself above the matching event.
 
-However, the ranking quality represents a massive leap forward. The
-hybrid system (utilizing Sentence Transformers via HuggingFace and
-FAISS) achieves perfect nDCG@5 and Mean Reciprocal Rank (MRR)---which
-means \textbf{it ranks the single correct session at position \#1 for
-every single query evaluated}.
+That pattern matches the current implementation. The hybrid system benefits from concept expansion, structured intent scoring, and optional dense similarity, while the keyword baseline only sees surface token overlap.
 
-The keyword-only baseline suffers from semantic mismatch (e.g., failing
-to connect the query ``machine learning'' to a session titled ``Neural
-Networks''), dragging its MRR down to 0.39. The hybrid approach's 156\%
-relative improvement directly proves that blending dense embeddings with
-lexical keyword overlap is critical for high-fidelity conference
-matchmaking.
+\section{Limitations and Future Work}
 
-\subsection{6 Conclusions and Future
-Work}\label{conclusions-and-future-work}
-
-This implementation decisively proves that raw, flat attendance records
-can be systematically normalized into a rich entity graph suitable for
-state-of-the-art hybrid vector retrieval and RAG-driven orchestrations.
-The platform is highly practical for small-to-medium conferences, and
-serves as an excellent foundation for professional networking tools.
-
-\textbf{Future Directions}: 1. \textbf{Profile Enrichment}:
-Automatically query external APIs (LinkedIn, Twitter) to scrape and
-enrich attendee profiles with their actual Job Titles, Companies, and
-self-authored biographies. 2. \textbf{Bidirectional Matchmaking}:
-Upgrade the system beyond search to become a proactive recommendation
-engine that actively proposes mutual double-opt-in meetings between
-attendees with complementary ``Asks'' and ``Offers''. 3.
-\textbf{Multi-Agent PAL}: Integrate multiple specialized LLM agents
-(e.g., an LLM specialized in scheduling, and an LLM specialized in
-introductory email drafting) routing through LangChain to automate the
-entire meeting arrangement lifecycle.
-
-\subsection{7 Submission Guidelines}\label{submission-guidelines}
+The project still inherits strong limits from the source dataset:
 
 \begin{itemize}
-\tightlist
-\item
-  \textbf{PDF file}: Included in the submission materials.
-\item
-  \textbf{GCP Endpoint}: \url{http://34.169.130.58:8000}
-\item
-  \textbf{Github URL}:
-  \url{https://github.com/xiancao2024/Conference-Matching-Platform}
+\item attendee roles are inferred heuristically rather than observed directly
+\item asks/offers are synthetic placeholders derived from attendance context
+\item quality depends on topic mappings in the ontology and on event naming quality
+\item embedding support is optional and depends on local model/index availability
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+Promising next steps are:
 
-\subsubsection{Appendix: How to reproduce
-locally}\label{appendix-how-to-reproduce-locally}
+\begin{enumerate}
+\item add richer benchmark sets with manually judged relevance, not only weak labels
+\item distinguish more event types and attendee intents beyond the current participant/session framing
+\item expose score breakdowns and evaluation views directly in the UI
+\item add safer profile enrichment pipelines only where external evidence is explicit
+\end{enumerate}
 
-\textbf{1. Create virtual environment and install dependencies}
+\section{Reproducibility and Submission Info}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\ExtensionTok{python3} \AttributeTok{{-}m}\NormalTok{ venv .venv}
-\ExtensionTok{.venv/bin/python} \AttributeTok{{-}m}\NormalTok{ pip install }\AttributeTok{{-}r}\NormalTok{ requirements.txt}
-\end{Highlighting}
-\end{Shaded}
+\begin{itemize}
+\item \textbf{GCP Endpoint}: \url{http://34.169.130.58:8000}
+\item \textbf{GitHub URL}: \url{https://github.com/xiancao2024/Conference-Matching-Platform}
+\end{itemize}
 
-\textbf{2. Import the Kaggle dataset directly via Kagglehub}
+\subsection{Local reproduction}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\ExtensionTok{pip}\NormalTok{ install kagglehub}
-\ExtensionTok{python3} \AttributeTok{{-}m}\NormalTok{ conference\_matching.kaggle\_import}
-\end{Highlighting}
-\end{Shaded}
+\textbf{1. Create a virtual environment and install dependencies}
 
-\textbf{3. Start the Server}
+\begin{verbatim}
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+\end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\ExtensionTok{python3}\NormalTok{ server.py}
-\end{Highlighting}
-\end{Shaded}
+\textbf{2. Import the Kaggle dataset}
 
-\textbf{4. Run complete evaluation suite}
+\begin{verbatim}
+python3 -m conference_matching.kaggle_import --input /path/to/event-attendance-dataset.zip
+\end{verbatim}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\ExtensionTok{python3} \AttributeTok{{-}m}\NormalTok{ conference\_matching.evaluation}
-\end{Highlighting}
-\end{Shaded}
+Or, if using \texttt{kagglehub}:
 
+\begin{verbatim}
+.venv/bin/python -m pip install kagglehub
+.venv/bin/python -m conference_matching.kaggle_import
+\end{verbatim}
+
+\textbf{3. Start the server}
+
+\begin{verbatim}
+.venv/bin/python server.py
+\end{verbatim}
+
+\textbf{4. Run evaluation}
+
+\begin{verbatim}
+.venv/bin/python -m conference_matching.evaluation
+\end{verbatim}
+
+\textbf{5. Run tests}
+
+\begin{verbatim}
+.venv/bin/python -m unittest discover -s tests
+\end{verbatim}
 
 \end{document}
