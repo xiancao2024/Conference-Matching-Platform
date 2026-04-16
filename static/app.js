@@ -145,30 +145,32 @@ function buildCardContent(match, question) {
     ? `Activity overlap: ${eventLabel}`
     : (org ? `Profile overlap: ${topSector} · ${org}` : `Interests and profile align with ${topSector}`);
 
-  const eventContext = eventLabel
-    ? `Registered GTC activity: ${eventLabel}`
-    : `No explicit agenda overlap; profile themes still match ${topSector}`;
   const profileContext = match.title
-    ? `Profile strength: ${topSector} · ${match.title}`
-    : `Profile strength: ${topSector}`;
+    ? `Professional fit: ${topSector} · ${match.title}`
+    : `Professional fit: ${topSector}`;
 
-  const bullets = [
-    eventContext,
-    profileContext
-  ];
+  const bullets = [profileContext];
 
-  const actionHint = "👉 Good person to meet around these GTC activities";
+  const actionHint = "";
   return { why, bullets, actionHint, badges: [] };
 }
 
 function renderCard(match, index, question) {
   const confidence = scoreLabel(match.score);
   const { why, bullets, actionHint, badges } = buildCardContent(match, question);
-  const tags = (match.sectors || []).slice(0, 3);
+  const personalizedTags = [
+    ...(match.asks || []),
+    ...(match.tags || []),
+    ...(match.offers || [])
+  ]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+  const tags = [...new Set(personalizedTags)].slice(0, 3);
+  const headlineRole = (match.title && match.title.trim()) || (match.role && match.role.trim()) || "Attendee";
   return `
     <article class="result-item">
       <h3>#${index + 1} ${escapeHtml(match.name)}</h3>
-      <p class="result-meta-line">📍 ${escapeHtml(match.organization || "")} · <span class="role-badge">${escapeHtml(match.role)}</span></p>
+      <p class="result-meta-line">💼 ${escapeHtml(headlineRole)}</p>
       ${tags.length ? `<div class="result-meta">${tags.map(s => `<span class="mini-pill">🏷 ${escapeHtml(s)}</span>`).join("")}</div>` : ""}
       ${badges.length ? `<div class="result-badges">${badges.map(b => `<span class="meta-badge">${escapeHtml(b)}</span>`).join("")}</div>` : ""}
       <p class="result-summary ${confidence.cls}">🎯 ${escapeHtml(why)}</p>
