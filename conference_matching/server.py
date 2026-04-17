@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import threading
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -16,12 +17,25 @@ from .llm import compose_query_from_payload, llm_rerank_and_explain
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATIC_ROOT = REPO_ROOT / "static"
 MATCHER = None
+_matcher_ready = threading.Event()
+_matcher_load_error: BaseException | None = None
+
+
+def _load_matcher_worker() -> None:
+    global MATCHER, _matcher_load_error
+    try:
+        MATCHER = build_default_matcher()
+    except BaseException as exc:
+        _matcher_load_error = exc
+    finally:
+        _matcher_ready.set()
 
 
 def get_matcher():
-    global MATCHER
-    if MATCHER is None:
-        MATCHER = build_default_matcher()
+    _matcher_ready.wait()
+    if _matcher_load_error is not None:
+        raise _matcher_load_error
+    assert MATCHER is not None
     return MATCHER
 
 
@@ -94,17 +108,24 @@ def _resolve_host_port(host: str | None = None, port: int | None = None) -> tupl
 
 def run(host: str | None = None, port: int | None = None) -> None:
     resolved_host, resolved_port = _resolve_host_port(host, port)
-    try:
-        get_matcher()
-    except FileNotFoundError as exc:
-        hint = (
-            "Expected a normalized dataset JSON (set CONFERENCE_DATA_PATH). "
-            "For GTC profiles: "
-            "`python3 -m conference_matching.gtc_import --input <wide.csv> --output data/conference_gtc.json`. "
-            "For Kaggle attendance: "
-            "`python3 -m conference_matching.kaggle_import --input <zip-or-csv>`."
-        )
-        raise SystemExit(f"{exc}\n{hint}") from exc
+    explicit = os.environ.get("CONFERENCE_DATA_PATH")
+    if explicit:
+        path = Path(explicit)
+        if not path.exists():
+            hint = (
+                "Expected a normalized dataset JSON (set CONFERENCE_DATA_PATH). "
+                "For GTC profiles: "
+                "`python3 -m conference_matching.gtc_import --input <wide.csv> --output data/conference_gtc.json`. "
+                "For Kaggle attendance: "
+                "`python3 -m conference_matching.kaggle_import --input <zip-or-csv>`."
+            )
+            raise SystemExit(f"Configured CONFERENCE_DATA_PATH does not exist: {path}\n{hint}")
+
+    threading.Thread(target=_load_matcher_worker, name="matcher-init", daemon=True).start()
+    print(
+        "Matcher initializing in background (large datasets / embeddings may take several minutes)...",
+        flush=True,
+    )
     server = ThreadingHTTPServer((resolved_host, resolved_port), ConferenceRequestHandler)
     print(f"Conference matching demo listening on http://{resolved_host}:{resolved_port}")
     try:
