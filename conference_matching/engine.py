@@ -441,19 +441,17 @@ class ConferenceMatcher:
             ],
         }
 
-    def keyword_search(self, query: dict[str, Any], limit: int = 5) -> list[dict[str, Any]]:
-        query_text = _build_query_text(query)
-        query_tokens = _tokenize(query_text)
-        query_vector = _weighted_counter(query_tokens, self.lexical_idf)
-        ranked = []
+    def attendee_public_record(self, entity_id: str) -> dict[str, Any] | None:
+        """Return roster fields for provenance links (same id as match results)."""
+        _omit = frozenset({"contact_email", "contact_phone"})
         for indexed in self.entities:
-            score = _cosine_similarity(query_vector, indexed.lexical_vector)
-            ranked.append(self._result_payload(indexed, score, "keyword", {}, query))
-        ranked.sort(key=lambda item: item["score"], reverse=True)
-        return ranked[:limit]
+            ent = indexed.entity
+            if str(ent.get("id", "")) == str(entity_id):
+                return {k: v for k, v in ent.items() if k not in _omit}
+        return None
 
-    def match(self, query: dict[str, Any], limit: int = 5) -> dict[str, Any]:
-        # Merge free-text notes/headline/asks into one string for concepts + intent
+    def _normalize_query_for_match(self, query: dict[str, Any]) -> tuple[dict[str, Any], str]:
+        """Shared query normalization used by match() and semantic_search()."""
         text_parts: list[str] = []
         for key in ("notes", "headline", "q"):
             value = query.get(key)
@@ -466,7 +464,7 @@ class ConferenceMatcher:
             text_parts.extend(str(item).strip() for item in asks_raw if str(item).strip())
         free_text = " ".join(text_parts).strip()
         inferred_sectors = _normalize_list(query.get("sectors")) + _extract_concepts(free_text)
-        normalized_query = {
+        normalized_query: dict[str, Any] = {
             "conference_id": query.get("conference_id", self.metadata["id"]),
             "role": _normalize_role(query.get("role", "participant")),
             "stage": _normalize_stage_label(query.get("stage", "")) if query.get("stage") else "",
@@ -487,6 +485,49 @@ class ConferenceMatcher:
         if not has_session_entities:
             normalized_query["search_intent"] = "people"
         query_text = _build_query_text(normalized_query)
+        return normalized_query, query_text, free_text
+
+    def keyword_search(self, query: dict[str, Any], limit: int = 5) -> list[dict[str, Any]]:
+        query_text = _build_query_text(query)
+        query_tokens = _tokenize(query_text)
+        query_vector = _weighted_counter(query_tokens, self.lexical_idf)
+        ranked = []
+        for indexed in self.entities:
+            score = _cosine_similarity(query_vector, indexed.lexical_vector)
+            ranked.append(self._result_payload(indexed, score, "keyword", {}, query))
+        ranked.sort(key=lambda item: item["score"], reverse=True)
+        return ranked[:limit]
+
+    def semantic_search(self, query: dict[str, Any], limit: int = 5) -> list[dict[str, Any]]:
+        """Dense retrieval only: rank attendees by embedding cosine similarity (no lexical / structured terms)."""
+        if not self._has_embeddings or self._embeddings is None or self._embed_model is None:
+            return []
+        normalized_query, query_text, _free = self._normalize_query_for_match(query)
+        try:
+            query_embedding = np.array(
+                self._embed_model.encode([query_text], normalize_embeddings=True), dtype="float32"
+            )
+        except Exception:
+            return []
+        ranked: list[dict[str, Any]] = []
+        for idx, indexed in enumerate(self.entities):
+            try:
+                emb_score = float(np.dot(query_embedding[0], self._embeddings[idx]))
+            except Exception:
+                emb_score = 0.0
+            ranked.append(self._result_payload(indexed, emb_score, "semantic", {}, normalized_query))
+        ranked.sort(key=lambda item: item["score"], reverse=True)
+        intent = normalized_query.get("search_intent", "mixed")
+        if intent == "sessions":
+            filtered = [item for item in ranked if _match_payload_is_session(item)]
+            ranked = filtered if filtered else ranked
+        elif intent == "people":
+            filtered = [item for item in ranked if _match_payload_is_attendee(item)]
+            ranked = filtered if filtered else ranked
+        return ranked[:limit]
+
+    def match(self, query: dict[str, Any], limit: int = 5) -> dict[str, Any]:
+        normalized_query, query_text, free_text = self._normalize_query_for_match(query)
         query_tokens = _tokenize(query_text)
         query_concepts = _extract_concepts(query_text)
         query_lexical = _weighted_counter(query_tokens, self.lexical_idf)

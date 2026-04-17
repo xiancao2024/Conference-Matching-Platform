@@ -167,9 +167,17 @@ function renderCard(match, index, question) {
     .filter(Boolean);
   const tags = [...new Set(personalizedTags)].slice(0, 3);
   const headlineRole = (match.title && match.title.trim()) || (match.role && match.role.trim()) || "Attendee";
+  const sourceUrl = match.id
+    ? `/api/attendee?id=${encodeURIComponent(match.id)}`
+    : "";
   return `
     <article class="result-item">
       <h3>#${index + 1} ${escapeHtml(match.name)}</h3>
+      ${
+        sourceUrl
+          ? `<p class="result-source-link"><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">View source record</a></p>`
+          : ""
+      }
       <p class="result-meta-line">💼 ${escapeHtml(headlineRole)}</p>
       ${tags.length ? `<div class="result-meta">${tags.map(s => `<span class="mini-pill">🏷 ${escapeHtml(s)}</span>`).join("")}</div>` : ""}
       ${badges.length ? `<div class="result-badges">${badges.map(b => `<span class="meta-badge">${escapeHtml(b)}</span>`).join("")}</div>` : ""}

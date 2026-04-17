@@ -1,0 +1,2376 @@
+{
+  "conference": {
+    "id": "gtc-profile-wide-row",
+    "name": "NVIDIA GTC (single conference)",
+    "location": "Synthetic / organizer-collected profiles",
+    "date": "",
+    "theme": "Attendee interests, resumes, and registered agenda items",
+    "description": "One conference (GTC). One row per attendee: education, major, job, interests, registered agenda titles (text only), and bio. Matching is people-only; agenda text is embedded in each profile for search.",
+    "tracks": [
+      "artificial intelligence",
+      "healthcare",
+      "developer tools",
+      "community",
+      "networking"
+    ],
+    "source_type": "gtc-wide-row",
+    "source_dataset": "local-gtc-profile-csv",
+    "source_label": "data/gtc_local_sample.csv",
+    "event_count": 1,
+    "attendee_count": 50,
+    "raw_row_count": 50
+  },
+  "entities": [
+    {
+      "id": "attendee-noah-chen-0-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Noah Chen",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Digital Twins",
+        "Robotics",
+        "Computer Vision",
+        "LLMs"
+      ],
+      "offers": [
+        "EE",
+        "PhD"
+      ],
+      "tags": [
+        "NVIDIA CEO Keynote",
+        "Digital Twins",
+        "Robotics",
+        "Computer Vision",
+        "LLMs"
+      ],
+      "bio": "Education: PhD. Major: EE. Role: Research Scientist. Experience: 3\u20135 years. Interests: Digital Twins; Robotics; Computer Vision; LLMs Registered GTC sessions: NVIDIA CEO Keynote.",
+      "contact_email": "noah.chen.0@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "PhD",
+      "major": "EE",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-diego-kim-1-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Kim",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "Healthcare AI",
+        "LLMs"
+      ],
+      "offers": [
+        "Data Science",
+        "BS"
+      ],
+      "tags": [
+        "CUDA Developer Lab",
+        "Healthcare AI Roundtable",
+        "Simulation",
+        "Healthcare AI",
+        "LLMs"
+      ],
+      "bio": "Education: BS. Major: Data Science. Role: Research Scientist. Experience: Graduate student. Interests: Simulation; Healthcare AI; LLMs Registered GTC sessions: CUDA Developer Lab, Healthcare AI Roundtable.",
+      "contact_email": "diego.kim.1@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Healthcare AI Roundtable"
+      ],
+      "education_level": "BS",
+      "major": "Data Science",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-fatima-khan-2-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Fatima Khan",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Robotics",
+        "Edge AI"
+      ],
+      "offers": [
+        "HCI",
+        "MS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup",
+        "NVIDIA CEO Keynote",
+        "Omniverse & Simulation Lab",
+        "Robotics",
+        "Edge AI"
+      ],
+      "bio": "Education: MS. Major: HCI. Role: Founder. Experience: 1\u20132 years. Interests: Robotics; Edge AI Registered GTC sessions: Deep Learning Training Workshop, Jetson Developer Meetup, NVIDIA CEO Keynote, Omniverse & Simulation Lab.",
+      "contact_email": "fatima.khan.2@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup",
+        "NVIDIA CEO Keynote",
+        "Omniverse & Simulation Lab"
+      ],
+      "education_level": "MS",
+      "major": "HCI",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-omar-garcia-3-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Garcia",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "Autonomous Vehicles",
+        "Robotics",
+        "LLMs"
+      ],
+      "offers": [
+        "CS",
+        "MBA"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Jetson Developer Meetup",
+        "Generative AI Theater: LLM Inference",
+        "Networking",
+        "Autonomous Vehicles",
+        "Robotics",
+        "LLMs"
+      ],
+      "bio": "Education: MBA. Major: CS. Role: ML Engineer. Experience: 6\u201310 years. Interests: Networking; Autonomous Vehicles; Robotics; LLMs Registered GTC sessions: Robotics & Edge AI Session, Jetson Developer Meetup, Generative AI Theater: LLM Inference.",
+      "contact_email": "omar.garcia.3@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Jetson Developer Meetup",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MBA",
+      "major": "CS",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-noah-foster-4-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Noah Foster",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Edge AI",
+        "Autonomous Vehicles"
+      ],
+      "offers": [
+        "Physics",
+        "PhD"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Generative AI Theater: LLM Inference",
+        "CUDA Developer Lab",
+        "Edge AI",
+        "Autonomous Vehicles"
+      ],
+      "bio": "Education: PhD. Major: Physics. Role: Product Manager. Experience: 6\u201310 years. Interests: Edge AI; Autonomous Vehicles Registered GTC sessions: Jetson Developer Meetup, Generative AI Theater: LLM Inference, CUDA Developer Lab.",
+      "contact_email": "noah.foster.4@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Generative AI Theater: LLM Inference",
+        "Jetson Developer Meetup"
+      ],
+      "education_level": "PhD",
+      "major": "Physics",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-emma-nguyen-5-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Emma Nguyen",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "LLMs",
+        "Autonomous Vehicles"
+      ],
+      "offers": [
+        "Physics",
+        "MBA"
+      ],
+      "tags": [
+        "NVIDIA CEO Keynote",
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "LLMs",
+        "Autonomous Vehicles"
+      ],
+      "bio": "Education: MBA. Major: Physics. Role: Founder. Experience: Graduate student. Interests: LLMs; Autonomous Vehicles Registered GTC sessions: NVIDIA CEO Keynote, Deep Learning Training Workshop, Healthcare AI Roundtable.",
+      "contact_email": "emma.nguyen.5@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "MBA",
+      "major": "Physics",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-maya-patel-6-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Maya Patel",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "CUDA",
+        "Healthcare AI",
+        "Networking"
+      ],
+      "offers": [
+        "EE",
+        "PhD"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Autonomous Vehicle Tech Talk",
+        "Jetson Developer Meetup",
+        "Deep Learning Training Workshop",
+        "CUDA",
+        "Healthcare AI",
+        "Networking"
+      ],
+      "bio": "Education: PhD. Major: EE. Role: Product Manager. Experience: 10+ years. Interests: CUDA; Healthcare AI; Networking Registered GTC sessions: Robotics & Edge AI Session, Autonomous Vehicle Tech Talk, Jetson Developer Meetup, Deep Learning Training Workshop.",
+      "contact_email": "maya.patel.6@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "PhD",
+      "major": "EE",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-ken-lopez-7-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ken Lopez",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Robotics",
+        "LLMs",
+        "Networking",
+        "Simulation"
+      ],
+      "offers": [
+        "Math",
+        "MBA"
+      ],
+      "tags": [
+        "CUDA Developer Lab",
+        "Healthcare AI Roundtable",
+        "Generative AI Theater: LLM Inference",
+        "Robotics & Edge AI Session",
+        "Robotics",
+        "LLMs",
+        "Networking",
+        "Simulation"
+      ],
+      "bio": "Education: MBA. Major: Math. Role: Research Scientist. Experience: 3\u20135 years. Interests: Robotics; LLMs; Networking; Simulation Registered GTC sessions: CUDA Developer Lab, Healthcare AI Roundtable, Generative AI Theater: LLM Inference, Robotics & Edge AI Session.",
+      "contact_email": "ken.lopez.7@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MBA",
+      "major": "Math",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-ravi-hughes-8-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ravi Hughes",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Digital Twins",
+        "Healthcare AI",
+        "Edge AI",
+        "LLMs"
+      ],
+      "offers": [
+        "Data Science",
+        "PhD"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Digital Twins",
+        "Healthcare AI",
+        "Edge AI",
+        "LLMs"
+      ],
+      "bio": "Education: PhD. Major: Data Science. Role: Solutions Architect. Experience: 1\u20132 years. Interests: Digital Twins; Healthcare AI; Edge AI; LLMs Registered GTC sessions: Jetson Developer Meetup.",
+      "contact_email": "ravi.hughes.8@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Jetson Developer Meetup"
+      ],
+      "education_level": "PhD",
+      "major": "Data Science",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-chen-hughes-9-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Chen Hughes",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Digital Twins",
+        "Robotics",
+        "Healthcare AI",
+        "Computer Vision"
+      ],
+      "offers": [
+        "Robotics",
+        "BS"
+      ],
+      "tags": [
+        "Autonomous Vehicle Tech Talk",
+        "Robotics & Edge AI Session",
+        "Digital Twins",
+        "Robotics",
+        "Healthcare AI",
+        "Computer Vision"
+      ],
+      "bio": "Education: BS. Major: Robotics. Role: Product Manager. Experience: 6\u201310 years. Interests: Digital Twins; Robotics; Healthcare AI; Computer Vision Registered GTC sessions: Autonomous Vehicle Tech Talk, Robotics & Edge AI Session.",
+      "contact_email": "chen.hughes.9@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "BS",
+      "major": "Robotics",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-ivan-nguyen-10-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ivan Nguyen",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Edge AI",
+        "Healthcare AI"
+      ],
+      "offers": [
+        "Data Science",
+        "BS"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Edge AI",
+        "Healthcare AI"
+      ],
+      "bio": "Education: BS. Major: Data Science. Role: Founder. Experience: 10+ years. Interests: Edge AI; Healthcare AI Registered GTC sessions: Robotics & Edge AI Session.",
+      "contact_email": "ivan.nguyen.10@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "BS",
+      "major": "Data Science",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-emma-lopez-11-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Emma Lopez",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "CUDA",
+        "Simulation"
+      ],
+      "offers": [
+        "CS",
+        "BS"
+      ],
+      "tags": [
+        "Autonomous Vehicle Tech Talk",
+        "CUDA Developer Lab",
+        "CUDA",
+        "Simulation"
+      ],
+      "bio": "Education: BS. Major: CS. Role: Product Manager. Experience: 10+ years. Interests: CUDA; Simulation Registered GTC sessions: Autonomous Vehicle Tech Talk, CUDA Developer Lab.",
+      "contact_email": "emma.lopez.11@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "CUDA Developer Lab"
+      ],
+      "education_level": "BS",
+      "major": "CS",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-nina-moore-12-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Nina Moore",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Computer Vision",
+        "Edge AI",
+        "Simulation",
+        "Healthcare AI"
+      ],
+      "offers": [
+        "EE",
+        "MBA"
+      ],
+      "tags": [
+        "Networking Reception",
+        "Generative AI Theater: LLM Inference",
+        "Robotics & Edge AI Session",
+        "Computer Vision",
+        "Edge AI",
+        "Simulation",
+        "Healthcare AI"
+      ],
+      "bio": "Education: MBA. Major: EE. Role: ML Engineer. Experience: 3\u20135 years. Interests: Computer Vision; Edge AI; Simulation; Healthcare AI Registered GTC sessions: Networking Reception, Generative AI Theater: LLM Inference, Robotics & Edge AI Session.",
+      "contact_email": "nina.moore.12@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Networking Reception",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MBA",
+      "major": "EE",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-maya-davis-13-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Maya Davis",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "LLMs",
+        "Robotics",
+        "Networking",
+        "Digital Twins"
+      ],
+      "offers": [
+        "Data Science",
+        "BS"
+      ],
+      "tags": [
+        "Generative AI Theater: LLM Inference",
+        "NVIDIA CEO Keynote",
+        "LLMs",
+        "Robotics",
+        "Networking",
+        "Digital Twins"
+      ],
+      "bio": "Education: BS. Major: Data Science. Role: ML Engineer. Experience: 3\u20135 years. Interests: LLMs; Robotics; Networking; Digital Twins Registered GTC sessions: Generative AI Theater: LLM Inference, NVIDIA CEO Keynote.",
+      "contact_email": "maya.davis.13@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "BS",
+      "major": "Data Science",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-maya-jones-14-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Maya Jones",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "Simulation"
+      ],
+      "offers": [
+        "Math",
+        "MS"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Networking Reception",
+        "Networking",
+        "Simulation"
+      ],
+      "bio": "Education: MS. Major: Math. Role: Product Manager. Experience: 10+ years. Interests: Networking; Simulation Registered GTC sessions: Robotics & Edge AI Session, Networking Reception.",
+      "contact_email": "maya.jones.14@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Networking Reception",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MS",
+      "major": "Math",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-diego-garcia-15-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Garcia",
+      "role": "participant",
+      "title": "Student",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "LLMs",
+        "Robotics"
+      ],
+      "offers": [
+        "Robotics",
+        "BS"
+      ],
+      "tags": [
+        "NVIDIA CEO Keynote",
+        "Healthcare AI Roundtable",
+        "Deep Learning Training Workshop",
+        "Autonomous Vehicle Tech Talk",
+        "Simulation",
+        "LLMs",
+        "Robotics"
+      ],
+      "bio": "Education: BS. Major: Robotics. Role: Student. Experience: 6\u201310 years. Interests: Simulation; LLMs; Robotics Registered GTC sessions: NVIDIA CEO Keynote, Healthcare AI Roundtable, Deep Learning Training Workshop, Autonomous Vehicle Tech Talk.",
+      "contact_email": "diego.garcia.15@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "BS",
+      "major": "Robotics",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-emma-patel-16-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Emma Patel",
+      "role": "participant",
+      "title": "Student",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Healthcare AI",
+        "Simulation",
+        "Autonomous Vehicles"
+      ],
+      "offers": [
+        "Data Science",
+        "MS"
+      ],
+      "tags": [
+        "Generative AI Theater: LLM Inference",
+        "Networking Reception",
+        "Healthcare AI",
+        "Simulation",
+        "Autonomous Vehicles"
+      ],
+      "bio": "Education: MS. Major: Data Science. Role: Student. Experience: 3\u20135 years. Interests: Healthcare AI; Simulation; Autonomous Vehicles Registered GTC sessions: Generative AI Theater: LLM Inference, Networking Reception.",
+      "contact_email": "emma.patel.16@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Networking Reception"
+      ],
+      "education_level": "MS",
+      "major": "Data Science",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-noah-park-17-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Noah Park",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "Networking"
+      ],
+      "offers": [
+        "CS",
+        "BS"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote",
+        "Generative AI Theater: LLM Inference",
+        "Simulation",
+        "Networking"
+      ],
+      "bio": "Education: BS. Major: CS. Role: Solutions Architect. Experience: 3\u20135 years. Interests: Simulation; Networking Registered GTC sessions: Robotics & Edge AI Session, Healthcare AI Roundtable, NVIDIA CEO Keynote, Generative AI Theater: LLM Inference.",
+      "contact_email": "noah.park.17@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "BS",
+      "major": "CS",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-ava-foster-18-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ava Foster",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Digital Twins",
+        "Simulation",
+        "CUDA"
+      ],
+      "offers": [
+        "HCI",
+        "PhD"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Jetson Developer Meetup",
+        "Omniverse & Simulation Lab",
+        "NVIDIA CEO Keynote",
+        "Digital Twins",
+        "Simulation",
+        "CUDA"
+      ],
+      "bio": "Education: PhD. Major: HCI. Role: Solutions Architect. Experience: 10+ years. Interests: Digital Twins; Simulation; CUDA Registered GTC sessions: Robotics & Edge AI Session, Jetson Developer Meetup, Omniverse & Simulation Lab, NVIDIA CEO Keynote.",
+      "contact_email": "ava.foster.18@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Jetson Developer Meetup",
+        "NVIDIA CEO Keynote",
+        "Omniverse & Simulation Lab",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "PhD",
+      "major": "HCI",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-omar-park-19-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Park",
+      "role": "participant",
+      "title": "Software Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "LLMs",
+        "Digital Twins",
+        "Robotics"
+      ],
+      "offers": [
+        "CS",
+        "PhD"
+      ],
+      "tags": [
+        "CUDA Developer Lab",
+        "Generative AI Theater: LLM Inference",
+        "LLMs",
+        "Digital Twins",
+        "Robotics"
+      ],
+      "bio": "Education: PhD. Major: CS. Role: Software Engineer. Experience: Graduate student. Interests: LLMs; Digital Twins; Robotics Registered GTC sessions: CUDA Developer Lab, Generative AI Theater: LLM Inference.",
+      "contact_email": "omar.park.19@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Generative AI Theater: LLM Inference"
+      ],
+      "education_level": "PhD",
+      "major": "CS",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-maya-kim-20-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Maya Kim",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "Robotics",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "offers": [
+        "CS",
+        "MBA"
+      ],
+      "tags": [
+        "Omniverse & Simulation Lab",
+        "Networking",
+        "Robotics",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "bio": "Education: MBA. Major: CS. Role: ML Engineer. Experience: 3\u20135 years. Interests: Networking; Robotics; Computer Vision; Edge AI Registered GTC sessions: Omniverse & Simulation Lab.",
+      "contact_email": "maya.kim.20@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Omniverse & Simulation Lab"
+      ],
+      "education_level": "MBA",
+      "major": "CS",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-nina-davis-21-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Nina Davis",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "developer tools",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Computer Vision",
+        "CUDA"
+      ],
+      "offers": [
+        "EE",
+        "PhD"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Networking Reception",
+        "Deep Learning Training Workshop",
+        "Computer Vision",
+        "CUDA"
+      ],
+      "bio": "Education: PhD. Major: EE. Role: Product Manager. Experience: 6\u201310 years. Interests: Computer Vision; CUDA Registered GTC sessions: Jetson Developer Meetup, Networking Reception, Deep Learning Training Workshop.",
+      "contact_email": "nina.davis.21@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup",
+        "Networking Reception"
+      ],
+      "education_level": "PhD",
+      "major": "EE",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-ava-hughes-22-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ava Hughes",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "developer tools",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "CUDA",
+        "Edge AI",
+        "Robotics",
+        "Simulation"
+      ],
+      "offers": [
+        "CS",
+        "BS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup",
+        "CUDA Developer Lab",
+        "CUDA",
+        "Edge AI",
+        "Robotics",
+        "Simulation"
+      ],
+      "bio": "Education: BS. Major: CS. Role: ML Engineer. Experience: 3\u20135 years. Interests: CUDA; Edge AI; Robotics; Simulation Registered GTC sessions: Deep Learning Training Workshop, Jetson Developer Meetup, CUDA Developer Lab.",
+      "contact_email": "ava.hughes.22@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup"
+      ],
+      "education_level": "BS",
+      "major": "CS",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-omar-brown-23-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Brown",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "CUDA",
+        "Healthcare AI",
+        "Robotics"
+      ],
+      "offers": [
+        "Robotics",
+        "BS"
+      ],
+      "tags": [
+        "Generative AI Theater: LLM Inference",
+        "CUDA",
+        "Healthcare AI",
+        "Robotics"
+      ],
+      "bio": "Education: BS. Major: Robotics. Role: Solutions Architect. Experience: Graduate student. Interests: CUDA; Healthcare AI; Robotics Registered GTC sessions: Generative AI Theater: LLM Inference.",
+      "contact_email": "omar.brown.23@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference"
+      ],
+      "education_level": "BS",
+      "major": "Robotics",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-omar-khan-24-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Khan",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "Healthcare AI",
+        "Simulation",
+        "CUDA"
+      ],
+      "offers": [
+        "Math",
+        "PhD"
+      ],
+      "tags": [
+        "NVIDIA CEO Keynote",
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable",
+        "Autonomous Vehicles",
+        "Healthcare AI",
+        "Simulation",
+        "CUDA"
+      ],
+      "bio": "Education: PhD. Major: Math. Role: ML Engineer. Experience: 3\u20135 years. Interests: Autonomous Vehicles; Healthcare AI; Simulation; CUDA Registered GTC sessions: NVIDIA CEO Keynote, Generative AI Theater: LLM Inference, Healthcare AI Roundtable.",
+      "contact_email": "omar.khan.24@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "PhD",
+      "major": "Math",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-leo-chen-25-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Leo Chen",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Digital Twins",
+        "Computer Vision"
+      ],
+      "offers": [
+        "HCI",
+        "PhD"
+      ],
+      "tags": [
+        "Autonomous Vehicle Tech Talk",
+        "NVIDIA CEO Keynote",
+        "Generative AI Theater: LLM Inference",
+        "Omniverse & Simulation Lab",
+        "Digital Twins",
+        "Computer Vision"
+      ],
+      "bio": "Education: PhD. Major: HCI. Role: Research Scientist. Experience: 6\u201310 years. Interests: Digital Twins; Computer Vision Registered GTC sessions: Autonomous Vehicle Tech Talk, NVIDIA CEO Keynote, Generative AI Theater: LLM Inference, Omniverse & Simulation Lab.",
+      "contact_email": "leo.chen.25@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Generative AI Theater: LLM Inference",
+        "NVIDIA CEO Keynote",
+        "Omniverse & Simulation Lab"
+      ],
+      "education_level": "PhD",
+      "major": "HCI",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-priya-kelly-26-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Priya Kelly",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Computer Vision",
+        "CUDA",
+        "LLMs",
+        "Digital Twins"
+      ],
+      "offers": [
+        "HCI",
+        "BS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "NVIDIA CEO Keynote",
+        "Computer Vision",
+        "CUDA",
+        "LLMs",
+        "Digital Twins"
+      ],
+      "bio": "Education: BS. Major: HCI. Role: Founder. Experience: Graduate student. Interests: Computer Vision; CUDA; LLMs; Digital Twins Registered GTC sessions: Deep Learning Training Workshop, NVIDIA CEO Keynote.",
+      "contact_email": "priya.kelly.26@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "BS",
+      "major": "HCI",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-diego-kim-27-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Kim",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "CUDA",
+        "Digital Twins"
+      ],
+      "offers": [
+        "Math",
+        "BS"
+      ],
+      "tags": [
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote",
+        "Autonomous Vehicles",
+        "CUDA",
+        "Digital Twins"
+      ],
+      "bio": "Education: BS. Major: Math. Role: Solutions Architect. Experience: Graduate student. Interests: Autonomous Vehicles; CUDA; Digital Twins Registered GTC sessions: Healthcare AI Roundtable, NVIDIA CEO Keynote.",
+      "contact_email": "diego.kim.27@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Healthcare AI Roundtable",
+        "NVIDIA CEO Keynote"
+      ],
+      "education_level": "BS",
+      "major": "Math",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-hana-green-28-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Hana Green",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "Autonomous Vehicles",
+        "Digital Twins"
+      ],
+      "offers": [
+        "Math",
+        "MS"
+      ],
+      "tags": [
+        "Networking Reception",
+        "Simulation",
+        "Autonomous Vehicles",
+        "Digital Twins"
+      ],
+      "bio": "Education: MS. Major: Math. Role: Research Scientist. Experience: 1\u20132 years. Interests: Simulation; Autonomous Vehicles; Digital Twins Registered GTC sessions: Networking Reception.",
+      "contact_email": "hana.green.28@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Networking Reception"
+      ],
+      "education_level": "MS",
+      "major": "Math",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-gavin-kim-29-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Gavin Kim",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Healthcare AI",
+        "Robotics",
+        "Networking"
+      ],
+      "offers": [
+        "CS",
+        "MS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Autonomous Vehicle Tech Talk",
+        "Healthcare AI Roundtable",
+        "Healthcare AI",
+        "Robotics",
+        "Networking"
+      ],
+      "bio": "Education: MS. Major: CS. Role: Product Manager. Experience: 3\u20135 years. Interests: Healthcare AI; Robotics; Networking Registered GTC sessions: Deep Learning Training Workshop, Autonomous Vehicle Tech Talk, Healthcare AI Roundtable.",
+      "contact_email": "gavin.kim.29@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable"
+      ],
+      "education_level": "MS",
+      "major": "CS",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-omar-davis-30-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Davis",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "LLMs",
+        "Robotics",
+        "Computer Vision",
+        "CUDA"
+      ],
+      "offers": [
+        "CS",
+        "BS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "Generative AI Theater: LLM Inference",
+        "LLMs",
+        "Robotics",
+        "Computer Vision",
+        "CUDA"
+      ],
+      "bio": "Education: BS. Major: CS. Role: Founder. Experience: 3\u20135 years. Interests: LLMs; Robotics; Computer Vision; CUDA Registered GTC sessions: Deep Learning Training Workshop, Healthcare AI Roundtable, Generative AI Theater: LLM Inference.",
+      "contact_email": "omar.davis.30@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable"
+      ],
+      "education_level": "BS",
+      "major": "CS",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-quinn-patel-31-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Quinn Patel",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Edge AI",
+        "Computer Vision"
+      ],
+      "offers": [
+        "CS",
+        "PhD"
+      ],
+      "tags": [
+        "Generative AI Theater: LLM Inference",
+        "Deep Learning Training Workshop",
+        "Edge AI",
+        "Computer Vision"
+      ],
+      "bio": "Education: PhD. Major: CS. Role: Product Manager. Experience: 10+ years. Interests: Edge AI; Computer Vision Registered GTC sessions: Generative AI Theater: LLM Inference, Deep Learning Training Workshop.",
+      "contact_email": "quinn.patel.31@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Generative AI Theater: LLM Inference"
+      ],
+      "education_level": "PhD",
+      "major": "CS",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-hana-garcia-32-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Hana Garcia",
+      "role": "participant",
+      "title": "Founder",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Healthcare AI",
+        "Digital Twins",
+        "CUDA"
+      ],
+      "offers": [
+        "Data Science",
+        "PhD"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Healthcare AI Roundtable",
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop",
+        "Healthcare AI",
+        "Digital Twins",
+        "CUDA"
+      ],
+      "bio": "Education: PhD. Major: Data Science. Role: Founder. Experience: 10+ years. Interests: Healthcare AI; Digital Twins; CUDA Registered GTC sessions: Robotics & Edge AI Session, Healthcare AI Roundtable, Autonomous Vehicle Tech Talk, Deep Learning Training Workshop.",
+      "contact_email": "hana.garcia.32@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "PhD",
+      "major": "Data Science",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-chen-moore-33-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Chen Moore",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "offers": [
+        "Physics",
+        "PhD"
+      ],
+      "tags": [
+        "Networking Reception",
+        "Omniverse & Simulation Lab",
+        "Autonomous Vehicle Tech Talk",
+        "Autonomous Vehicles",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "bio": "Education: PhD. Major: Physics. Role: ML Engineer. Experience: 1\u20132 years. Interests: Autonomous Vehicles; Computer Vision; Edge AI Registered GTC sessions: Networking Reception, Omniverse & Simulation Lab, Autonomous Vehicle Tech Talk.",
+      "contact_email": "chen.moore.33@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Networking Reception",
+        "Omniverse & Simulation Lab"
+      ],
+      "education_level": "PhD",
+      "major": "Physics",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-diego-jones-34-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Jones",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Healthcare AI",
+        "Digital Twins",
+        "Edge AI",
+        "LLMs"
+      ],
+      "offers": [
+        "HCI",
+        "MBA"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Healthcare AI",
+        "Digital Twins",
+        "Edge AI",
+        "LLMs"
+      ],
+      "bio": "Education: MBA. Major: HCI. Role: Solutions Architect. Experience: 3\u20135 years. Interests: Healthcare AI; Digital Twins; Edge AI; LLMs Registered GTC sessions: Robotics & Edge AI Session.",
+      "contact_email": "diego.jones.34@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MBA",
+      "major": "HCI",
+      "work_experience": "3\u20135 years"
+    },
+    {
+      "id": "attendee-gavin-kim-35-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Gavin Kim",
+      "role": "participant",
+      "title": "Software Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking",
+        "artificial intelligence",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "Robotics"
+      ],
+      "offers": [
+        "EE",
+        "MS"
+      ],
+      "tags": [
+        "Networking Reception",
+        "Healthcare AI Roundtable",
+        "Robotics & Edge AI Session",
+        "Deep Learning Training Workshop",
+        "Networking",
+        "Robotics"
+      ],
+      "bio": "Education: MS. Major: EE. Role: Software Engineer. Experience: 1\u20132 years. Interests: Networking; Robotics Registered GTC sessions: Networking Reception, Healthcare AI Roundtable, Robotics & Edge AI Session, Deep Learning Training Workshop.",
+      "contact_email": "gavin.kim.35@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Healthcare AI Roundtable",
+        "Networking Reception",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MS",
+      "major": "EE",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-jules-iyer-36-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Jules Iyer",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "CUDA"
+      ],
+      "offers": [
+        "EE",
+        "MBA"
+      ],
+      "tags": [
+        "Autonomous Vehicle Tech Talk",
+        "Networking Reception",
+        "NVIDIA CEO Keynote",
+        "Jetson Developer Meetup",
+        "Autonomous Vehicles",
+        "CUDA"
+      ],
+      "bio": "Education: MBA. Major: EE. Role: Research Scientist. Experience: 1\u20132 years. Interests: Autonomous Vehicles; CUDA Registered GTC sessions: Autonomous Vehicle Tech Talk, Networking Reception, NVIDIA CEO Keynote, Jetson Developer Meetup.",
+      "contact_email": "jules.iyer.36@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Jetson Developer Meetup",
+        "NVIDIA CEO Keynote",
+        "Networking Reception"
+      ],
+      "education_level": "MBA",
+      "major": "EE",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-noah-hughes-37-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Noah Hughes",
+      "role": "participant",
+      "title": "Student",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "Digital Twins",
+        "Computer Vision",
+        "Networking"
+      ],
+      "offers": [
+        "HCI",
+        "MS"
+      ],
+      "tags": [
+        "Autonomous Vehicle Tech Talk",
+        "Networking Reception",
+        "CUDA Developer Lab",
+        "Simulation",
+        "Digital Twins",
+        "Computer Vision",
+        "Networking"
+      ],
+      "bio": "Education: MS. Major: HCI. Role: Student. Experience: Graduate student. Interests: Simulation; Digital Twins; Computer Vision; Networking Registered GTC sessions: Autonomous Vehicle Tech Talk, Networking Reception, CUDA Developer Lab.",
+      "contact_email": "noah.hughes.37@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "CUDA Developer Lab",
+        "Networking Reception"
+      ],
+      "education_level": "MS",
+      "major": "HCI",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-mateo-hughes-38-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Mateo Hughes",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "Healthcare AI",
+        "Simulation",
+        "LLMs"
+      ],
+      "offers": [
+        "HCI",
+        "PhD"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Robotics & Edge AI Session",
+        "Omniverse & Simulation Lab",
+        "CUDA Developer Lab",
+        "Autonomous Vehicles",
+        "Healthcare AI",
+        "Simulation",
+        "LLMs"
+      ],
+      "bio": "Education: PhD. Major: HCI. Role: Research Scientist. Experience: 6\u201310 years. Interests: Autonomous Vehicles; Healthcare AI; Simulation; LLMs Registered GTC sessions: Jetson Developer Meetup, Robotics & Edge AI Session, Omniverse & Simulation Lab, CUDA Developer Lab.",
+      "contact_email": "mateo.hughes.38@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Jetson Developer Meetup",
+        "Omniverse & Simulation Lab",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "PhD",
+      "major": "HCI",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-omar-singh-39-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Singh",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "Robotics",
+        "Computer Vision",
+        "Networking"
+      ],
+      "offers": [
+        "EE",
+        "MS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Autonomous Vehicle Tech Talk",
+        "Autonomous Vehicles",
+        "Robotics",
+        "Computer Vision",
+        "Networking"
+      ],
+      "bio": "Education: MS. Major: EE. Role: Research Scientist. Experience: 10+ years. Interests: Autonomous Vehicles; Robotics; Computer Vision; Networking Registered GTC sessions: Deep Learning Training Workshop, Autonomous Vehicle Tech Talk.",
+      "contact_email": "omar.singh.39@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Deep Learning Training Workshop"
+      ],
+      "education_level": "MS",
+      "major": "EE",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-ken-park-40-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ken Park",
+      "role": "participant",
+      "title": "Student",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "Computer Vision",
+        "Simulation",
+        "LLMs"
+      ],
+      "offers": [
+        "HCI",
+        "MS"
+      ],
+      "tags": [
+        "Deep Learning Training Workshop",
+        "Networking",
+        "Computer Vision",
+        "Simulation",
+        "LLMs"
+      ],
+      "bio": "Education: MS. Major: HCI. Role: Student. Experience: 10+ years. Interests: Networking; Computer Vision; Simulation; LLMs Registered GTC sessions: Deep Learning Training Workshop.",
+      "contact_email": "ken.park.40@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop"
+      ],
+      "education_level": "MS",
+      "major": "HCI",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-jules-green-41-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Jules Green",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "developer tools",
+        "community"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "LLMs",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "offers": [
+        "Physics",
+        "MS"
+      ],
+      "tags": [
+        "Healthcare AI Roundtable",
+        "CUDA Developer Lab",
+        "Networking Reception",
+        "Generative AI Theater: LLM Inference",
+        "LLMs",
+        "Computer Vision",
+        "Edge AI"
+      ],
+      "bio": "Education: MS. Major: Physics. Role: Research Scientist. Experience: 6\u201310 years. Interests: LLMs; Computer Vision; Edge AI Registered GTC sessions: Healthcare AI Roundtable, CUDA Developer Lab, Networking Reception, Generative AI Theater: LLM Inference.",
+      "contact_email": "jules.green.41@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Generative AI Theater: LLM Inference",
+        "Healthcare AI Roundtable",
+        "Networking Reception"
+      ],
+      "education_level": "MS",
+      "major": "Physics",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-omar-chen-42-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Omar Chen",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "developer tools",
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "CUDA",
+        "Simulation"
+      ],
+      "offers": [
+        "Data Science",
+        "MBA"
+      ],
+      "tags": [
+        "CUDA Developer Lab",
+        "NVIDIA CEO Keynote",
+        "Jetson Developer Meetup",
+        "Robotics & Edge AI Session",
+        "CUDA",
+        "Simulation"
+      ],
+      "bio": "Education: MBA. Major: Data Science. Role: ML Engineer. Experience: 1\u20132 years. Interests: CUDA; Simulation Registered GTC sessions: CUDA Developer Lab, NVIDIA CEO Keynote, Jetson Developer Meetup, Robotics & Edge AI Session.",
+      "contact_email": "omar.chen.42@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab",
+        "Jetson Developer Meetup",
+        "NVIDIA CEO Keynote",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "MBA",
+      "major": "Data Science",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-diego-hughes-43-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Hughes",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "healthcare",
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Healthcare AI",
+        "Robotics",
+        "Simulation"
+      ],
+      "offers": [
+        "Math",
+        "PhD"
+      ],
+      "tags": [
+        "NVIDIA CEO Keynote",
+        "Autonomous Vehicle Tech Talk",
+        "Omniverse & Simulation Lab",
+        "CUDA Developer Lab",
+        "Healthcare AI",
+        "Robotics",
+        "Simulation"
+      ],
+      "bio": "Education: PhD. Major: Math. Role: Solutions Architect. Experience: 10+ years. Interests: Healthcare AI; Robotics; Simulation Registered GTC sessions: NVIDIA CEO Keynote, Autonomous Vehicle Tech Talk, Omniverse & Simulation Lab, CUDA Developer Lab.",
+      "contact_email": "diego.hughes.43@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "CUDA Developer Lab",
+        "NVIDIA CEO Keynote",
+        "Omniverse & Simulation Lab"
+      ],
+      "education_level": "PhD",
+      "major": "Math",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-maya-park-44-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Maya Park",
+      "role": "participant",
+      "title": "Research Scientist",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Autonomous Vehicles",
+        "CUDA",
+        "Simulation",
+        "Edge AI"
+      ],
+      "offers": [
+        "EE",
+        "BS"
+      ],
+      "tags": [
+        "Generative AI Theater: LLM Inference",
+        "Robotics & Edge AI Session",
+        "Autonomous Vehicles",
+        "CUDA",
+        "Simulation",
+        "Edge AI"
+      ],
+      "bio": "Education: BS. Major: EE. Role: Research Scientist. Experience: 1\u20132 years. Interests: Autonomous Vehicles; CUDA; Simulation; Edge AI Registered GTC sessions: Generative AI Theater: LLM Inference, Robotics & Edge AI Session.",
+      "contact_email": "maya.park.44@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "BS",
+      "major": "EE",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-fatima-evans-45-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Fatima Evans",
+      "role": "participant",
+      "title": "ML Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools",
+        "healthcare"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Robotics",
+        "LLMs"
+      ],
+      "offers": [
+        "Data Science",
+        "MS"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Healthcare AI Roundtable",
+        "Autonomous Vehicle Tech Talk",
+        "Robotics",
+        "LLMs"
+      ],
+      "bio": "Education: MS. Major: Data Science. Role: ML Engineer. Experience: 1\u20132 years. Interests: Robotics; LLMs Registered GTC sessions: Jetson Developer Meetup, Healthcare AI Roundtable, Autonomous Vehicle Tech Talk.",
+      "contact_email": "fatima.evans.45@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Autonomous Vehicle Tech Talk",
+        "Healthcare AI Roundtable",
+        "Jetson Developer Meetup"
+      ],
+      "education_level": "MS",
+      "major": "Data Science",
+      "work_experience": "1\u20132 years"
+    },
+    {
+      "id": "attendee-diego-singh-46-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Diego Singh",
+      "role": "participant",
+      "title": "Product Manager",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "community",
+        "networking"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Networking",
+        "LLMs",
+        "Edge AI",
+        "Healthcare AI"
+      ],
+      "offers": [
+        "CS",
+        "MS"
+      ],
+      "tags": [
+        "Healthcare AI Roundtable",
+        "Networking",
+        "LLMs",
+        "Edge AI",
+        "Healthcare AI"
+      ],
+      "bio": "Education: MS. Major: CS. Role: Product Manager. Experience: 6\u201310 years. Interests: Networking; LLMs; Edge AI; Healthcare AI Registered GTC sessions: Healthcare AI Roundtable.",
+      "contact_email": "diego.singh.46@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Healthcare AI Roundtable"
+      ],
+      "education_level": "MS",
+      "major": "CS",
+      "work_experience": "6\u201310 years"
+    },
+    {
+      "id": "attendee-ivan-singh-47-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Ivan Singh",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Computer Vision",
+        "Edge AI",
+        "Simulation"
+      ],
+      "offers": [
+        "CS",
+        "PhD"
+      ],
+      "tags": [
+        "CUDA Developer Lab",
+        "Computer Vision",
+        "Edge AI",
+        "Simulation"
+      ],
+      "bio": "Education: PhD. Major: CS. Role: Solutions Architect. Experience: 10+ years. Interests: Computer Vision; Edge AI; Simulation Registered GTC sessions: CUDA Developer Lab.",
+      "contact_email": "ivan.singh.47@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "CUDA Developer Lab"
+      ],
+      "education_level": "PhD",
+      "major": "CS",
+      "work_experience": "10+ years"
+    },
+    {
+      "id": "attendee-chen-jones-48-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Chen Jones",
+      "role": "participant",
+      "title": "Solutions Architect",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "healthcare",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Computer Vision",
+        "Healthcare AI",
+        "Edge AI"
+      ],
+      "offers": [
+        "Data Science",
+        "PhD"
+      ],
+      "tags": [
+        "Robotics & Edge AI Session",
+        "Generative AI Theater: LLM Inference",
+        "Jetson Developer Meetup",
+        "Omniverse & Simulation Lab",
+        "Computer Vision",
+        "Healthcare AI",
+        "Edge AI"
+      ],
+      "bio": "Education: PhD. Major: Data Science. Role: Solutions Architect. Experience: Graduate student. Interests: Computer Vision; Healthcare AI; Edge AI Registered GTC sessions: Robotics & Edge AI Session, Generative AI Theater: LLM Inference, Jetson Developer Meetup, Omniverse & Simulation Lab.",
+      "contact_email": "chen.jones.48@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Generative AI Theater: LLM Inference",
+        "Jetson Developer Meetup",
+        "Omniverse & Simulation Lab",
+        "Robotics & Edge AI Session"
+      ],
+      "education_level": "PhD",
+      "major": "Data Science",
+      "work_experience": "Graduate student"
+    },
+    {
+      "id": "attendee-lina-lopez-49-gtc-synth-example",
+      "entity_type": "attendee",
+      "name": "Lina Lopez",
+      "role": "participant",
+      "title": "Software Engineer",
+      "organization": "Gtc-synth",
+      "sectors": [
+        "artificial intelligence",
+        "developer tools"
+      ],
+      "stage": [
+        "all"
+      ],
+      "goals": [
+        "Meet peers at GTC sessions",
+        "Explore registered agenda topics"
+      ],
+      "asks": [
+        "Simulation",
+        "Autonomous Vehicles",
+        "Edge AI"
+      ],
+      "offers": [
+        "Math",
+        "MBA"
+      ],
+      "tags": [
+        "Jetson Developer Meetup",
+        "Deep Learning Training Workshop",
+        "Simulation",
+        "Autonomous Vehicles",
+        "Edge AI"
+      ],
+      "bio": "Education: MBA. Major: Math. Role: Software Engineer. Experience: 10+ years. Interests: Simulation; Autonomous Vehicles; Edge AI Registered GTC sessions: Jetson Developer Meetup, Deep Learning Training Workshop.",
+      "contact_email": "lina.lopez.49@gtc-synth.example",
+      "contact_phone": "",
+      "source_events": [
+        "Deep Learning Training Workshop",
+        "Jetson Developer Meetup"
+      ],
+      "education_level": "MBA",
+      "major": "Math",
+      "work_experience": "10+ years"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import os
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from .engine import build_default_matcher
 from .evaluation import evaluate
@@ -36,6 +36,18 @@ class ConferenceRequestHandler(SimpleHTTPRequestHandler):
             return
         if route == "/api/evaluate":
             self._send_json(evaluate())
+            return
+        if route == "/api/attendee":
+            qs = parse_qs(urlparse(self.path).query)
+            raw_id = (qs.get("id") or [None])[0]
+            if not raw_id:
+                self.send_error(HTTPStatus.BAD_REQUEST, "Missing query parameter id")
+                return
+            record = get_matcher().attendee_public_record(raw_id.strip())
+            if record is None:
+                self.send_error(HTTPStatus.NOT_FOUND, "Attendee not found")
+                return
+            self._send_json({"attendee": record})
             return
         if route == "/" or route == "":
             self.path = "/index.html"
