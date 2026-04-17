@@ -97,10 +97,14 @@ def run(host: str | None = None, port: int | None = None) -> None:
     try:
         get_matcher()
     except FileNotFoundError as exc:
-        raise SystemExit(
-            "No imported Kaggle dataset is available yet. "
-            "Run `python3 -m conference_matching.kaggle_import --input <zip-or-csv>` first."
-        ) from exc
+        hint = (
+            "Expected a normalized dataset JSON (set CONFERENCE_DATA_PATH). "
+            "For GTC profiles: "
+            "`python3 -m conference_matching.gtc_import --input <wide.csv> --output data/conference_gtc.json`. "
+            "For Kaggle attendance: "
+            "`python3 -m conference_matching.kaggle_import --input <zip-or-csv>`."
+        )
+        raise SystemExit(f"{exc}\n{hint}") from exc
     server = ThreadingHTTPServer((resolved_host, resolved_port), ConferenceRequestHandler)
     print(f"Conference matching demo listening on http://{resolved_host}:{resolved_port}")
     try:
